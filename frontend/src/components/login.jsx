@@ -1,116 +1,240 @@
-import { useState, useEffect, useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // Adjust the path as needed
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaTimes, FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
-const Login = () => {
-  const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
-  const { role: routeRole } = useParams();
-  const [role, setRole] = useState(routeRole || "company");
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
+const Login = ({ isOpen, onClose, userType }) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(""); // Clear error when typing
+  const [error, setError] = useState("");
 
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+    // Clear error when user starts typing
+    if (error) setError("");
   };
 
-  useEffect(() => {
-    if (routeRole !== "company" && routeRole !== "freelancer") {
-      setRole("company"); 
-    }
-  }, [routeRole]);
-
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const endpoint =
-        role === "company"
-          ? "http://localhost:8000/api/companies/login"
-          : "http://localhost:8000/api/freelancers/login";
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // Allow cookies
-        body: JSON.stringify({
-          email: formData.email.trim(), // Trim whitespace
-          password: formData.password.trim(), // Trim whitespace
-        }),
+      console.log("🔄 Login attempt:", {
+        email: formData.email,
+        userType,
+        endpoint:
+          userType === "Company"
+            ? "/api/companies/login"
+            : "/api/freelancers/login",
       });
-      if (response.ok) {
-        const data = await response.json();
-       
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.role);        // if needed
-        localStorage.setItem("userModel", data.model);  // "Freelancer" or "Company"
-        localStorage.setItem("userId", data.userId);
 
-        login();
-        navigate("/");
+      const endpoint =
+        userType === "Company"
+          ? "/api/companies/login"
+          : "/api/freelancers/login";
 
+      const response = await fetch(`http://localhost:8000${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      console.log("📥 Login response:", data);
+
+      if (response.ok && data.token) {
+        // Extract user data from response
+        const userData = {
+          id: data.user.id,
+          email: data.user.email,
+          role: data.role || userType.toLowerCase(),
+          fullName:
+            data.user.fullName || data.user.companyName || data.user.name,
+          companyName: data.user.companyName,
+          name: data.user.name || data.user.fullName,
+          ...data.user,
+        };
+
+        console.log("✅ Processed user data:", userData);
+
+        // Login through AuthContext
+        const loginSuccess = login(userData, data.token);
+
+        if (loginSuccess) {
+          console.log("✅ Login successful, redirecting...");
+
+          // Close modal
+          onClose();
+
+          // Reset form
+          setFormData({ email: "", password: "" });
+
+          // Redirect based on user role
+          if (userData.role === "company") {
+            navigate("/company-dashboard");
+          } else if (userData.role === "freelancer") {
+            navigate("/jobs");
+          } else {
+            navigate("/");
+          }
+        } else {
+          setError("Failed to process login. Please try again.");
+        }
       } else {
-        setError( "Login failed. Please try again.");
+        console.log("❌ Login failed:", data);
+        setError(
+          data.error ||
+            data.message ||
+            "Login failed. Please check your credentials."
+        );
       }
     } catch (error) {
-      setError("Server error. Please try again later: " + error.message);
+      console.error("❌ Login error:", error);
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleClose = () => {
+    setFormData({ email: "", password: "" });
+    setError("");
+    setShowPassword(false);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <div className="w-full max-w-md bg-white p-8 shadow-lg rounded-lg">
-        <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
-        <hr className="border-gray-300 my-4" />
-
-        {error && <p className="text-red-500 text-center">{error}</p>}
-
-        <form onSubmit={handleLogin}>
-          {/* Role Info - Hidden Input or Display */}
-          <div className="mb-4">
-            <label className="block text-md text-green-800">Logging in as {role}</label>
-            <p className="text-md font-medium capitalize"></p>
-          </div>
-
-          {/* Email Input */}
-          <div className="mb-4">
-            <label className="block text-lg font-semibold">Email</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              className="w-full p-3 border rounded-lg focus:outline-none"
-              value={formData.email.toLowerCase()}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* Password Input */}
-          <div className="mb-4">
-            <label className="block text-lg font-semibold">Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              className="w-full p-3 border rounded-lg focus:outline-none"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
-
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Sign in as {userType}
+          </h2>
           <button
-            type="submit"
-            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 w-full"
+            onClick={handleClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            <FaTimes size={20} />
           </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Email Field */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autoComplete="email"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+              placeholder="Enter your email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
+
+          {/* Password Field */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                autoComplete="current-password"
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                placeholder="Enter your password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                disabled={loading}
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                disabled={loading}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-2 px-4 rounded-md hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            {loading ? (
+              <>
+                <FaSpinner className="animate-spin mr-2" />
+                Signing in...
+              </>
+            ) : (
+              "Sign in"
+            )}
+          </button>
+
+          {/* Additional Links */}
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  handleClose();
+                  navigate("/register");
+                }}
+                className="text-emerald-600 hover:text-emerald-700 font-medium"
+                disabled={loading}
+              >
+                Sign up
+              </button>
+            </p>
+          </div>
         </form>
       </div>
     </div>

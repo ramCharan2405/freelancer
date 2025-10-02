@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ModalPopup from "./modalPopup";
-import { FaGlobe, FaBuilding } from "react-icons/fa";
+import { FaGlobe, FaBuilding, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const CompanyProfile = ({ isOpen, onClose }) => {
   const [company, setCompany] = useState({
@@ -12,13 +13,12 @@ const CompanyProfile = ({ isOpen, onClose }) => {
     about: "",
     website: "",
     logo: "",
-    projects: [],
-    certifications: [],
   });
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("");
   const [existingData, setExistingData] = useState("");
   const companyId = localStorage.getItem("userId");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (companyId) {
@@ -48,21 +48,11 @@ const CompanyProfile = ({ isOpen, onClose }) => {
   const handleSave = (data) => {
     const updated = { ...company };
     if (modalType === "about") updated.about = data;
-    else if (modalType === "projects") updated.projects.push(data);
     else if (modalType === "website") updated.website = data;
 
     setCompany(updated);
     updateCompany(updated);
     setModalOpen(false);
-  };
-
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files).map((file) =>
-      URL.createObjectURL(file)
-    );
-    const updatedCerts = [...company.certifications, ...files];
-    setCompany({ ...company, certifications: updatedCerts });
-    updateCompany({ certifications: updatedCerts });
   };
 
   if (!isOpen) return null;
@@ -86,7 +76,7 @@ const CompanyProfile = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="absolute top-16 right-10 w-80 bg-white/95 backdrop-blur-lg shadow-2xl rounded-xl border border-green-200 z-[100] transition-all duration-300 text-sm">
+    <div className="w-72 bg-white/95 backdrop-blur-lg shadow-2xl rounded-xl border border-green-200 transition-all duration-300 text-sm">
       {/* Header */}
       <div className="flex items-center p-4 bg-gradient-to-r from-green-100 to-green-200 rounded-t-xl border-b border-green-200">
         <label className="cursor-pointer mr-3">
@@ -107,123 +97,92 @@ const CompanyProfile = ({ isOpen, onClose }) => {
             onChange={handleLogoUpload}
           />
         </label>
-        <div className="flex flex-col ml-2">
-          <h2 className="text-base font-bold text-green-700 truncate">
-            {company.organization}
+        <div className="flex flex-col ml-2 flex-1">
+          <h2 className="text-sm font-bold text-green-700 truncate">
+            {company.organization || "Company Name"}
           </h2>
-          <p className="text-xs text-gray-600">{company.email}</p>
+          <p className="text-xs text-gray-600 truncate">{company.email}</p>
         </div>
         <button
           onClick={onClose}
-          className="ml-auto text-green-500 hover:text-red-500 text-xl font-bold transition"
+          className="text-green-500 hover:text-red-500 text-lg font-bold transition"
           title="Close"
         >
           ×
         </button>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="p-3 space-y-3">
+        {/* Contact Info */}
+        <div className="flex items-center gap-2 text-xs text-gray-600">
+          <FaPhone className="text-green-500" />
+          <span>{company.contact || "No contact"}</span>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs text-gray-600">
+          <FaMapMarkerAlt className="text-green-500" />
+          <span className="truncate">{company.address || "No address"}</span>
+        </div>
+
+        {/* Website */}
+        {company.website && (
+          <div className="flex items-center gap-2">
+            <FaGlobe className="text-green-500" />
+            <a
+              href={
+                company.website?.startsWith("http")
+                  ? company.website
+                  : `https://${company.website}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-green-600 hover:text-green-700 transition truncate"
+            >
+              {company.website}
+            </a>
+          </div>
+        )}
+
         {/* About */}
         <div>
-          <h3 className="text-sm font-semibold text-green-700 mb-1">About</h3>
-          <p className="text-xs text-gray-700">
-            {company.about || "No info yet."}
+          <h3 className="text-xs font-semibold text-green-700 mb-1">About</h3>
+          <p className="text-xs text-gray-700 line-clamp-2">
+            {company.about || "No company description available."}
           </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 pt-2">
           <button
-            className="mt-2 w-full bg-gradient-to-r from-green-400 to-green-500 text-white py-1 rounded-lg hover:from-green-500 hover:to-green-600 transition font-semibold text-xs"
+            className="flex-1 bg-gradient-to-r from-green-400 to-green-500 text-white py-1.5 px-2 rounded-lg hover:from-green-500 hover:to-green-600 transition font-semibold text-xs"
             onClick={() => {
               setModalType("about");
               setExistingData(company.about);
               setModalOpen(true);
             }}
           >
-            {company.about ? "Edit" : "+ Add About"}
+            Edit About
           </button>
-        </div>
-
-        {/* Website */}
-        <div>
-          <h3 className="text-sm font-semibold text-green-700 mb-1">Website</h3>
-          <a
-            href={
-              company.website?.startsWith("http")
-                ? company.website
-                : `https://${company.website}`
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-green-600 hover:text-green-700 transition"
-          >
-            <FaGlobe /> {company.website || "No website added"}
-          </a>
           <button
-            className="mt-2 w-full bg-gradient-to-r from-green-400 to-green-500 text-white py-1 rounded-lg hover:from-green-500 hover:to-green-600 transition font-semibold text-xs"
+            className="flex-1 bg-gradient-to-r from-blue-400 to-blue-500 text-white py-1.5 px-2 rounded-lg hover:from-blue-500 hover:to-blue-600 transition font-semibold text-xs"
             onClick={() => {
               setModalType("website");
               setExistingData(company.website);
               setModalOpen(true);
             }}
           >
-            {company.website ? "Edit" : "+ Add Website"}
+            {company.website ? "Edit Website" : "Add Website"}
           </button>
         </div>
 
-        {/* Projects */}
-        <div>
-          <h3 className="text-sm font-semibold text-green-700 mb-1">
-            Projects
-          </h3>
-          {company.projects?.length > 0 ? (
-            <ul className="list-disc list-inside text-xs text-gray-700 mt-1">
-              {company.projects.map((proj, i) => (
-                <li key={i}>{proj}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-xs text-gray-700">No projects added yet.</p>
-          )}
+        {/* Edit Profile Button */}
+        <div className="pt-2 border-t border-green-100 mt-3">
           <button
-            className="mt-2 w-full bg-gradient-to-r from-green-400 to-green-500 text-white py-1 rounded-lg hover:from-green-500 hover:to-green-600 transition font-semibold text-xs"
-            onClick={() => {
-              setModalType("projects");
-              setModalOpen(true);
-            }}
+            onClick={() => navigate("/edit-company-profile")}
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-2 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition font-semibold text-sm flex items-center justify-center space-x-2"
           >
-            + Add Project
+            <span>Edit Profile</span>
           </button>
-        </div>
-
-        {/* Certifications */}
-        <div>
-          <h3 className="text-sm font-semibold text-green-700 mb-1">
-            Certifications
-          </h3>
-          {company.certifications?.length > 0 ? (
-            <div className="grid grid-cols-3 gap-2 mt-2">
-              {company.certifications.map((cert, i) => (
-                <img
-                  key={i}
-                  src={cert}
-                  className="w-10 h-10 object-cover rounded border border-green-200 shadow"
-                  alt={`cert-${i}`}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-gray-700">No certifications yet.</p>
-          )}
-          <label className="block mt-2">
-            <span className="inline-block bg-gradient-to-r from-green-400 to-green-500 text-white px-3 py-1 rounded-lg cursor-pointer hover:from-green-500 hover:to-green-600 transition font-semibold text-xs shadow">
-              Upload Certificate
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-            </span>
-          </label>
         </div>
       </div>
 
@@ -231,7 +190,7 @@ const CompanyProfile = ({ isOpen, onClose }) => {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSave={handleSave}
-        title={`Add ${modalType.charAt(0).toUpperCase() + modalType.slice(1)}`}
+        title={`${modalType === "about" ? "Edit About" : "Add Website"}`}
         existingData={existingData}
         placeholder={`Enter ${modalType}`}
       />

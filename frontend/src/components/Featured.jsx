@@ -1,120 +1,144 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import {
-  FaDesktop,
-  FaPenNib,
   FaCode,
+  FaPaintBrush,
+  FaCamera,
+  FaPenNib,
+  FaMobile,
   FaBullhorn,
-  FaChartLine,
-  FaVideo,
 } from "react-icons/fa";
-import { useInView } from "framer-motion";
-
-const categories = [
-  {
-    name: "Graphics & Design",
-    icon: <FaPenNib className="text-green-500 text-3xl mb-2" />,
-  },
-  {
-    name: "Digital Marketing",
-    icon: <FaBullhorn className="text-green-500 text-3xl mb-2" />,
-  },
-  {
-    name: "Writing & Translation",
-    icon: <FaDesktop className="text-green-500 text-3xl mb-2" />,
-  },
-  {
-    name: "Programming & Tech",
-    icon: <FaCode className="text-green-500 text-3xl mb-2" />,
-  },
-  {
-    name: "Business & Finance",
-    icon: <FaChartLine className="text-green-500 text-3xl mb-2" />,
-  },
-  {
-    name: "Video & Animation",
-    icon: <FaVideo className="text-green-500 text-3xl mb-2" />,
-  },
-];
-
-// Counter animation hook
-const useCounter = (end, inView, duration = 2000) => {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    let start = 0;
-    const increment = end / (duration / 20);
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= end) {
-        start = end;
-        clearInterval(timer);
-      }
-      setCount(Math.floor(start));
-    }, 20);
-    return () => clearInterval(timer);
-  }, [inView, end, duration]);
-
-  return count;
-};
 
 const Featured = () => {
-  const statsRef = useRef(null);
-  const inView = useInView(statsRef, { once: true });
+  const categories = [
+    {
+      icon: "FaCode",
+      title: "Web Development",
+      description: "Full-stack development, APIs, and modern frameworks",
+      jobs: 245,
+      color: "from-emerald-400 to-teal-600",
+      bgColor: "from-emerald-400/20 to-teal-600/20",
+    },
+    {
+      icon: "FaPaintBrush",
+      title: "Graphic Design",
+      description: "Logo design, branding, and visual identity",
+      jobs: 189,
+      color: "from-teal-400 to-lime-600",
+      bgColor: "from-teal-400/20 to-lime-600/20",
+    },
+    {
+      icon: "FaCamera",
+      title: "Photography",
+      description: "Product photography, events, and editing",
+      jobs: 156,
+      color: "from-lime-400 to-emerald-600",
+      bgColor: "from-lime-400/20 to-emerald-600/20",
+    },
+    {
+      icon: "FaPenNib",
+      title: "Content Writing",
+      description: "Blog posts, copywriting, and SEO content",
+      jobs: 203,
+      color: "from-emerald-400 to-lime-500",
+      bgColor: "from-emerald-400/20 to-lime-500/20",
+    },
+    {
+      icon: "FaMobile",
+      title: "Mobile Development",
+      description: "iOS, Android, and cross-platform apps",
+      jobs: 167,
+      color: "from-teal-400 to-emerald-500",
+      bgColor: "from-teal-400/20 to-emerald-500/20",
+    },
+    {
+      icon: "FaBullhorn",
+      title: "Digital Marketing",
+      description: "SEO, social media, and online advertising",
+      jobs: 134,
+      color: "from-lime-400 to-teal-500",
+      bgColor: "from-lime-400/20 to-teal-500/20",
+    },
+  ];
 
-  const freelancers = useCounter(3000000, inView);
-  const earnings = useCounter(150000000, inView);
-  const minutes = useCounter(10, inView);
+  const iconMap = {
+    FaCode,
+    FaPaintBrush,
+    FaCamera,
+    FaPenNib,
+    FaMobile,
+    FaBullhorn,
+  };
 
   return (
-    <div className="p-6 md:p-12 bg-gradient-to-r from-green-50 to-green-100 rounded-2xl shadow-lg">
-      {/* Heading */}
-      <h2 className="text-3xl font-extrabold text-center text-green-700 mb-8 tracking-tight">
-        Browse Talent by Category
-      </h2>
-
-      {/* Category Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6 justify-center max-w-4xl mx-auto mb-10">
-        {categories.map((category, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-xl p-7 flex flex-col items-center justify-center shadow-lg hover:shadow-2xl transition duration-200 border border-green-100 hover:border-green-300 cursor-pointer group"
-          >
-            <div className="group-hover:scale-110 transition-transform duration-200">
-              {category.icon}
-            </div>
-            <h3 className="text-green-700 font-semibold text-base mt-2 group-hover:text-green-900 transition">
-              {category.name}
-            </h3>
-          </div>
-        ))}
+    <section className="relative py-24 bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 right-1/3 w-72 h-72 bg-lime-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
-      {/* Statistics Section */}
-      <div
-        ref={statsRef}
-        className="flex flex-col md:flex-row items-center justify-center gap-8 bg-white rounded-xl shadow-md py-6 px-4 md:px-12 max-w-3xl mx-auto"
-      >
-        <div className="flex flex-col items-center">
-          <span className="text-2xl md:text-3xl font-bold text-green-600">
-            {freelancers.toLocaleString()}
-          </span>
-          <span className="text-gray-600 text-sm mt-1">Freelancers</span>
+      <div className="relative z-10 container mx-auto px-6">
+        {/* Header */}
+        <div className="text-center mb-20">
+          <h2 className="text-5xl font-bold text-gray-200 mb-6">
+            Popular Categories
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+            Explore thousands of jobs across different categories and find the
+            perfect match for your skills
+          </p>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="text-2xl md:text-3xl font-bold text-green-600">
-            ${earnings.toLocaleString()}
-          </span>
-          <span className="text-gray-600 text-sm mt-1">Total Earnings</span>
+
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {categories.map((category, index) => {
+            const IconComponent = iconMap[category.icon];
+            return (
+              <div
+                key={index}
+                className="group bg-slate-800/60 backdrop-blur-2xl rounded-3xl shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 p-8 border border-emerald-500/20 hover:border-emerald-400/40 hover:-translate-y-3 hover:scale-105 cursor-pointer"
+              >
+                <div
+                  className={`bg-gradient-to-r ${category.bgColor} w-20 h-20 rounded-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg border border-emerald-500/20`}
+                >
+                  <IconComponent className="text-white text-3xl" />
+                </div>
+
+                <h3 className="text-2xl font-bold text-gray-200 mb-4 group-hover:text-emerald-400 transition-colors duration-300">
+                  {category.title}
+                </h3>
+
+                <p className="text-gray-400 mb-6 leading-relaxed">
+                  {category.description}
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 bg-slate-700/50 backdrop-blur-sm px-3 py-2 rounded-full border border-emerald-500/20">
+                    {category.jobs} jobs available
+                  </span>
+                  <button className="text-emerald-400 hover:text-lime-400 font-semibold text-sm group-hover:translate-x-2 transition-all duration-300 flex items-center gap-2">
+                    View Jobs →
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <div className="flex flex-col items-center">
-          <span className="text-2xl md:text-3xl font-bold text-green-600">
-            {minutes} min
-          </span>
-          <span className="text-gray-600 text-sm mt-1">Avg. Hiring Time</span>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-20">
+          <button className="group bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-lime-400 text-white px-10 py-5 rounded-2xl font-semibold text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/40 transform hover:scale-105 border border-emerald-500/30">
+            <span className="flex items-center gap-3">
+              View All Categories
+              <span className="group-hover:translate-x-1 transition-transform">
+                →
+              </span>
+            </span>
+          </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -1,391 +1,400 @@
 import { useState } from "react";
-import { FaTrash, FaUpload } from "react-icons/fa";
+import {
+  FaCode,
+  FaUpload,
+  FaArrowLeft,
+  FaArrowRight,
+  FaSpinner,
+  FaPlus,
+  FaTrash,
+  FaFilePdf,
+  FaFileWord,
+  FaFile,
+  FaTimes,
+  FaGithub,
+  FaLinkedin,
+  FaGlobe,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useRegistration } from "../context/RegistrationContext";
 
-export default function Step3() {
+const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
   const navigate = useNavigate();
-  const { registrationData } = useRegistration();
-  const [skills, setSkills] = useState([""]);
-  const [languages, setLanguages] = useState([""]);
-  const [categories, setCategories] = useState([""]);
-  const [experience, setExperience] = useState("");
-  const [portfolio, setPortfolio] = useState("");
-  const [github, setGithub] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [resume, setResume] = useState(null);
-  const [resumeName, setResumeName] = useState("");
+  const [skills, setSkills] = useState(formData.skills || [""]);
+  const [experience, setExperience] = useState(formData.experience || "");
+  const [bio, setBio] = useState(formData.bio || "");
+  const [github, setGithub] = useState(formData.github || "");
+  const [linkedin, setLinkedin] = useState(formData.linkedin || "");
+  const [portfolio, setPortfolio] = useState(formData.portfolio || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [resumeFile, setResumeFile] = useState(formData.resumeFile || null);
 
   const addSkill = () => setSkills([...skills, ""]);
-  const addLanguage = () => setLanguages([...languages, ""]);
-  const addCategory = () => setCategories([...categories, ""]);
 
-  const handleChange = (setter, index, value) => {
-    setter((prevList) => {
-      const newList = [...prevList];
-      newList[index] = value;
-      return newList;
+  const handleSkillChange = (index, value) => {
+    const newSkills = [...skills];
+    newSkills[index] = value;
+    setSkills(newSkills);
+    updateFormData();
+  };
+
+  const removeSkill = (index) => {
+    setSkills(skills.filter((_, i) => i !== index));
+    updateFormData();
+  };
+
+  const updateFormData = () => {
+    handleChange({
+      skills: skills.filter((skill) => skill.trim() !== ""),
+      experience,
+      bio,
+      github,
+      linkedin,
+      portfolio,
+      resumeFile,
     });
   };
 
-  const removeItem = (setter, index) => {
-    setter((prevList) => prevList.filter((_, i) => i !== index));
-  };
-
-  const handleBack = () => {
-    navigate("/freelancer-personal-details");
-  };
-
-  const handleResumeUpload = (e) => {
+  const handleResumeChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setResumeName(file.name);
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        setResume(reader.result);
-      };
+      // Validate file type
+      const allowedTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        alert("Please select a PDF, DOC, or DOCX file");
+        return;
+      }
+
+      // Validate file size (10MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File size must be less than 10MB");
+        return;
+      }
+
+      setResumeFile(file);
+      handleChange({ resumeFile: file });
+      console.log("📄 Resume selected:", file.name);
+    }
+  };
+
+  const removeResume = () => {
+    setResumeFile(null);
+    handleChange({ resumeFile: null });
+    // Reset file input
+    const fileInput = document.getElementById("resume");
+    if (fileInput) fileInput.value = "";
+  };
+
+  const getFileIcon = (fileName) => {
+    const extension = fileName.split(".").pop().toLowerCase();
+    switch (extension) {
+      case "pdf":
+        return <FaFilePdf className="text-red-400" />;
+      case "doc":
+      case "docx":
+        return <FaFileWord className="text-blue-400" />;
+      default:
+        return <FaFile className="text-gray-400" />;
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
-    // Check skills - filter out empty strings and check if any remain
-    const validSkills = skills.filter(skill => skill.trim() !== "");
+    const validSkills = skills.filter((skill) => skill.trim() !== "");
+
     if (validSkills.length === 0) {
-      newErrors.skills = "At least one skill is required.";
+      newErrors.skills = "At least one skill is required";
     }
-    
-    // Check experience
-    if (!experience || experience.trim() === "") {
-      newErrors.experience = "Experience is required.";
+    if (!experience) {
+      newErrors.experience = "Experience is required";
     }
-    
-    // Portfolio, GitHub, LinkedIn, and Resume are optional according to backend model
-    // Remove these required validations
-    
-    // Check languages - filter out empty strings and check if any remain
-    const validLanguages = languages.filter(language => language.trim() !== "");
-    if (validLanguages.length === 0) {
-      newErrors.languages = "At least one language is required.";
-    }
-    
-    // Check categories - filter out empty strings and check if any remain
-    const validCategories = categories.filter(category => category.trim() !== "");
-    if (validCategories.length === 0) {
-      newErrors.categories = "At least one category is required.";
+    if (!bio || bio.trim().length < 50) {
+      newErrors.bio = "Bio is required (minimum 50 characters)";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      console.error("Validation failed, errors: ", errors);
-      return;
-    }
-    
-    // Filter out empty strings from arrays
-    const validSkills = skills.filter(skill => skill.trim() !== "");
-    const validLanguages = languages.filter(language => language.trim() !== "");
-    const validCategories = categories.filter(category => category.trim() !== "");
-    
-    console.log(registrationData);
-    const freelancerData = {
-      ...registrationData,
-      skills: validSkills,
-      experience: parseInt(experience),
-      portfolio: portfolio.trim() || undefined,
-      github: github.trim() || undefined,
-      linkedin: linkedin.trim() || undefined,
-      resume: resume || undefined,
-      languages: validLanguages,
-      projectCategories: validCategories,
-    };
-    // console.log("Submitting payload:", freelancerData);
-    try {
-      const response = await fetch(
-        "http://localhost:8000/api/freelancers/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(freelancerData),
-        }
-      );
+  const handleFormSubmit = async () => {
+    if (!validateForm()) return;
 
-      const result = await response.json();
-      if (response.ok) {
-        alert("Freelancer registered successfully!");
-        navigate("/login");
-      } else {
-        alert("Error: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
+    setIsSubmitting(true);
+    updateFormData(); // Ensure formData is updated
+
+    try {
+      await handleSubmit();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto mt-16 mb-16 p-8 bg-white rounded-2xl shadow-lg">
-      <h2 className="text-3xl font-bold text-green-700 text-center mb-6">
-        Freelancer Profile
-      </h2>
-      <hr className="border-green-200 mb-6" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 flex items-center justify-center p-4">
+      {/* Background Effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
+      </div>
 
-      {/* Skills */}
-      <div className="mb-6">
-        <label className="block text-lg font-semibold text-gray-700">
-          Skills
-        </label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-          {skills.map((skill, index) => (
-            <div
-              key={index}
-              className="flex items-center bg-gray-50 border rounded-lg p-2"
-            >
-              <input
-                type="text"
-                value={skill}
-                onChange={(e) => handleChange(setSkills, index, e.target.value)}
-                placeholder="Enter a skill"
-                className="flex-grow p-2 border-none bg-transparent focus:ring-0"
-              />
+      <div className="relative z-10 w-full max-w-4xl">
+        <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-500/20 p-6">
+          {/* Compact Header */}
+          <div className="text-center mb-6">
+            <div className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-xl p-3 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+              <FaCode className="text-white text-lg" />
+            </div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              Skills & Portfolio
+            </h2>
+            <p className="text-gray-400 text-sm">
+              Step 3 of 3 - Professional Details & Resume
+            </p>
+            <div className="w-full bg-slate-700 rounded-full h-1.5 mt-3">
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-1.5 rounded-full w-full"></div>
+            </div>
+          </div>
+
+          {/* Compact Form */}
+          <form className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column */}
+              <div className="space-y-4">
+                {/* Skills */}
+                <div>
+                  <label className="block text-sm font-medium text-emerald-400 mb-2">
+                    Skills *
+                  </label>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {skills.map((skill, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          value={skill}
+                          onChange={(e) =>
+                            handleSkillChange(index, e.target.value)
+                          }
+                          placeholder="e.g., JavaScript, React"
+                          disabled={isSubmitting}
+                          className="flex-1 px-3 py-2 bg-slate-700/50 border border-emerald-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeSkill(index)}
+                          disabled={isSubmitting || skills.length === 1}
+                          className="text-red-400 hover:text-red-300 transition p-2 rounded-lg hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <FaTrash className="text-xs" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addSkill}
+                    disabled={isSubmitting}
+                    className="mt-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-sm border border-emerald-500/30"
+                  >
+                    <FaPlus className="text-xs" />
+                    Add Skill
+                  </button>
+                  {errors.skills && (
+                    <p className="text-red-400 text-xs mt-1">{errors.skills}</p>
+                  )}
+                </div>
+
+                {/* Experience */}
+                <div>
+                  <label className="block text-sm font-medium text-emerald-400 mb-1">
+                    Experience (Years) *
+                  </label>
+                  <input
+                    type="number"
+                    value={experience}
+                    onChange={(e) => setExperience(e.target.value)}
+                    placeholder="Years of experience"
+                    disabled={isSubmitting}
+                    min="0"
+                    max="50"
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                  />
+                  {errors.experience && (
+                    <p className="text-red-400 text-xs mt-1">
+                      {errors.experience}
+                    </p>
+                  )}
+                </div>
+
+                {/* Social Links */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-400 mb-1 flex items-center gap-2">
+                      <FaGithub className="text-xs" />
+                      GitHub Profile
+                    </label>
+                    <input
+                      type="url"
+                      value={github}
+                      onChange={(e) => setGithub(e.target.value)}
+                      placeholder="https://github.com/username"
+                      disabled={isSubmitting}
+                      className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-400 mb-1 flex items-center gap-2">
+                      <FaLinkedin className="text-xs" />
+                      LinkedIn Profile
+                    </label>
+                    <input
+                      type="url"
+                      value={linkedin}
+                      onChange={(e) => setLinkedin(e.target.value)}
+                      placeholder="https://linkedin.com/in/username"
+                      disabled={isSubmitting}
+                      className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-emerald-400 mb-1 flex items-center gap-2">
+                      <FaGlobe className="text-xs" />
+                      Portfolio Website
+                    </label>
+                    <input
+                      type="url"
+                      value={portfolio}
+                      onChange={(e) => setPortfolio(e.target.value)}
+                      placeholder="https://yourportfolio.com"
+                      disabled={isSubmitting}
+                      className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-4">
+                {/* Bio */}
+                <div>
+                  <label className="block text-sm font-medium text-emerald-400 mb-1">
+                    Professional Bio *
+                  </label>
+                  <textarea
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Tell us about yourself, your expertise, and what makes you unique as a freelancer..."
+                    rows={6}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm resize-none"
+                  />
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>{bio.length} characters</span>
+                    <span>Minimum 50 characters</span>
+                  </div>
+                  {errors.bio && (
+                    <p className="text-red-400 text-xs mt-1">{errors.bio}</p>
+                  )}
+                </div>
+
+                {/* Resume Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-emerald-400 mb-2">
+                    Resume/CV (Optional)
+                  </label>
+                  <div className="border-2 border-dashed border-emerald-500/30 rounded-lg p-4 text-center">
+                    {resumeFile ? (
+                      <div className="flex items-center justify-between bg-slate-700/50 rounded-lg p-3">
+                        <div className="flex items-center gap-3">
+                          {getFileIcon(resumeFile.name)}
+                          <div className="text-left">
+                            <p className="text-white text-sm font-medium">
+                              {resumeFile.name}
+                            </p>
+                            <p className="text-gray-400 text-xs">
+                              {(resumeFile.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeResume}
+                          className="text-red-400 hover:text-red-300 transition p-1 rounded-lg hover:bg-red-500/10"
+                        >
+                          <FaTimes className="text-sm" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <FaUpload className="text-emerald-400 text-2xl mx-auto mb-2" />
+                        <p className="text-gray-400 text-sm mb-2">
+                          Upload your resume (PDF, DOC, DOCX)
+                        </p>
+                        <label
+                          htmlFor="resume"
+                          className="cursor-pointer bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-4 py-2 rounded-lg text-sm border border-emerald-500/30 transition-all duration-200"
+                        >
+                          Choose File
+                        </label>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      id="resume"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleResumeChange}
+                      className="hidden"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <p className="text-gray-400 text-xs mt-1">
+                    Accepted formats: PDF, DOC, DOCX (Max 10MB)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-4 border-t border-emerald-500/20">
               <button
                 type="button"
-                onClick={() => removeItem(setSkills, index)}
-                className="text-red-500 hover:text-red-700"
+                onClick={prevStep}
+                disabled={isSubmitting}
+                className="flex items-center space-x-2 px-4 py-2.5 bg-slate-700/60 text-gray-300 rounded-lg hover:bg-slate-600/60 transition-all duration-200 border border-emerald-500/20 text-sm disabled:opacity-50"
               >
-                <FaTrash />
+                <FaArrowLeft className="text-xs" />
+                <span>Back</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleFormSubmit}
+                disabled={isSubmitting}
+                className="flex items-center space-x-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-lg transition-all duration-200 hover:scale-105 text-sm font-medium disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <FaSpinner className="animate-spin text-xs" />
+                    <span>Creating Account...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Complete Registration</span>
+                    <FaArrowRight className="text-xs" />
+                  </>
+                )}
               </button>
             </div>
-          ))}
+          </form>
         </div>
-        <button
-          type="button"
-          onClick={addSkill}
-          className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
-        >
-          + Add Skill
-        </button>
-        {errors.skills && (
-          <p className="text-red-500 text-sm mt-1">{errors.skills}</p>
-        )}
-      </div>
-
-      {/* Experience + Portfolio in one row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <label className="block text-lg font-semibold text-gray-700">
-            Years of Experience
-          </label>
-          <input
-            type="number"
-            value={experience}
-            onChange={(e) => setExperience(e.target.value)}
-            placeholder="Years of Experience"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-          {errors.experience && (
-            <p className="text-red-500 text-sm mt-1">{errors.experience}</p>
-          )}
-        </div>
-        <div>
-          <label className="block text-lg font-semibold text-gray-700">
-            Portfolio Link
-          </label>
-          <input
-            type="url"
-            value={portfolio}
-            onChange={(e) => setPortfolio(e.target.value)}
-            placeholder="Portfolio Link"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-          {errors.portfolio && (
-            <p className="text-red-500 text-sm mt-1">{errors.portfolio}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Resume Upload */}
-      <div className="mb-6">
-        <label className="block text-lg font-semibold text-gray-700">
-          Resume
-        </label>
-        <div className="flex items-center border p-3 rounded-lg cursor-pointer hover:bg-green-50 transition">
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            className="hidden"
-            id="resumeUpload"
-            onChange={handleResumeUpload}
-          />
-          <label
-            htmlFor="resumeUpload"
-            className="flex items-center cursor-pointer w-full"
-          >
-            <FaUpload className="text-green-600 mr-3" />
-            <span className="text-gray-600">
-              {resumeName || "Upload Resume"}
-            </span>
-          </label>
-        </div>
-        {errors.resume && (
-          <p className="text-red-500 text-sm mt-1">{errors.resume}</p>
-        )}
-      </div>
-
-      {/* GitHub + LinkedIn in one row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div>
-          <label className="block text-lg font-semibold text-gray-700">
-            GitHub Link
-          </label>
-          <input
-            type="url"
-            value={github}
-            onChange={(e) => setGithub(e.target.value)}
-            placeholder="GitHub Link"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-        <div>
-          <label className="block text-lg font-semibold text-gray-700">
-            LinkedIn Link
-          </label>
-          <input
-            type="url"
-            value={linkedin}
-            onChange={(e) => setLinkedin(e.target.value)}
-            placeholder="LinkedIn Link"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-      </div>
-
-      {/* Categories + Languages in one row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Project Categories */}
-        <div>
-          <label className="block text-lg font-semibold text-gray-700">
-            Project Categories
-          </label>
-          <div className="grid grid-cols-1 gap-3 mt-2">
-            {categories.map((category, index) => (
-              <div
-                key={index}
-                className="flex items-center bg-gray-50 border rounded-lg p-2"
-              >
-                <input
-                  type="text"
-                  value={category}
-                  onChange={(e) =>
-                    handleChange(setCategories, index, e.target.value)
-                  }
-                  placeholder="e.g. Web Development"
-                  className="flex-grow p-2 border-none bg-transparent focus:ring-0"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeItem(setCategories, index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={addCategory}
-            className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
-          >
-            + Add Category
-          </button>
-          {errors.categories && (
-            <p className="text-red-500 text-sm mt-1">{errors.categories}</p>
-          )}
-        </div>
-
-        {/* Languages */}
-        <div>
-          <label className="block text-lg font-semibold text-gray-700">
-            Languages Spoken
-          </label>
-          <div className="grid grid-cols-1 gap-3 mt-2">
-            {languages.map((language, index) => (
-              <div
-                key={index}
-                className="flex items-center bg-gray-50 border rounded-lg p-2"
-              >
-                <input
-                  type="text"
-                  value={language}
-                  onChange={(e) =>
-                    handleChange(setLanguages, index, e.target.value)
-                  }
-                  placeholder="Enter a language"
-                  className="flex-grow p-2 border-none bg-transparent focus:ring-0"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeItem(setLanguages, index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={addLanguage}
-            className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
-          >
-            + Add Language
-          </button>
-          {errors.languages && (
-            <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Terms & Conditions */}
-      <div className="mb-6 space-y-2">
-        <label className="flex items-center text-gray-700">
-          <input
-            type="checkbox"
-            className="mr-2 rounded text-green-600 focus:ring-green-500"
-          />{" "}
-          I have read and agree to the Terms & Conditions.
-        </label>
-        <label className="flex items-center text-gray-700">
-          <input
-            type="checkbox"
-            className="mr-2 rounded text-green-600 focus:ring-green-500"
-          />{" "}
-          I acknowledge that my personal data will be processed in accordance
-          with the Privacy Policy.
-        </label>
-      </div>
-
-      {/* Buttons */}
-      <div className="flex justify-between mt-8">
-        <button
-          onClick={handleBack}
-          className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
-        >
-          Back
-        </button>
-        <button
-          onClick={handleSubmit}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700 transition"
-        >
-          Register
-        </button>
       </div>
     </div>
   );
-}
+};
+
+export default Step3;
