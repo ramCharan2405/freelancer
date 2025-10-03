@@ -7,11 +7,11 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Test the connection
+
 cloudinary.api.ping()
   .then(res => {
-    console.log("✅ Cloudinary Connected Successfully:", res);
+
   })
   .catch(err => {
-    console.error("❌ Cloudinary Error:", err.message);
+
   });

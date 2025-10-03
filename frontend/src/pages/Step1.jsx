@@ -28,8 +28,6 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
   });
 
   const validateStep1 = () => {
-    console.log("🔍 Validating Step1 with data:", formData);
-
     const newErrors = {};
 
     if (!formData.fullName?.trim()) {
@@ -54,38 +52,28 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
-    console.log("🔍 Validation errors:", newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
-    console.log("🔄 Next button clicked!");
-    console.log("📝 Current form data:", formData);
-
     if (validateStep1()) {
-      console.log("✅ Validation passed, calling nextStep");
       if (typeof nextStep === "function") {
         nextStep();
       } else {
-        console.error("❌ nextStep is not a function:", typeof nextStep);
       }
     } else {
-      console.log("❌ Validation failed");
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(`🔄 Input change: ${name} = ${value}`);
 
     if (typeof handleChange === "function") {
       handleChange({ [name]: value });
     } else {
-      console.error("❌ handleChange is not a function:", typeof handleChange);
     }
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -94,42 +82,37 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
       if (!file.type.startsWith("image/")) {
         alert("Please select an image file");
         return;
       }
 
-      // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
         alert("File size must be less than 5MB");
         return;
       }
 
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setProfilePreview(e.target.result);
       };
       reader.readAsDataURL(file);
 
-      // Store file in form data
       handleChange({ profilePictureFile: file });
-      console.log("📸 Profile picture selected:", file.name);
     }
   };
 
   const removeProfilePicture = () => {
     setProfilePreview(null);
     handleChange({ profilePictureFile: null, profilePicture: null });
-    // Reset file input
+
     const fileInput = document.getElementById("profilePicture");
     if (fileInput) fileInput.value = "";
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 flex items-center justify-center p-4">
-      {/* Background Effects */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -137,7 +120,7 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-500/20 p-6">
-          {/* Compact Header */}
+          {}
           <div className="text-center mb-6">
             <div className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-xl p-3 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
               <FaUser className="text-white text-lg" />
@@ -153,9 +136,9 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
             </div>
           </div>
 
-          {/* Compact Form */}
+          {}
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            {/* Profile Picture Upload */}
+            {}
             <div className="text-center mb-4">
               <label className="block text-sm font-medium text-emerald-400 mb-2">
                 Profile Picture (Optional)
@@ -200,7 +183,7 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
               </div>
             </div>
 
-            {/* Full Name */}
+            {}
             <div>
               <label className="block text-sm font-medium text-emerald-400 mb-1">
                 Full Name *
@@ -222,7 +205,7 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
               )}
             </div>
 
-            {/* Email */}
+            {}
             <div>
               <label className="block text-sm font-medium text-emerald-400 mb-1">
                 Email Address *
@@ -243,9 +226,9 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
               )}
             </div>
 
-            {/* Password Row */}
+            {}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Password */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-emerald-400 mb-1">
                   Password *
@@ -273,7 +256,7 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
                 )}
               </div>
 
-              {/* Confirm Password */}
+              {}
               <div>
                 <label className="block text-sm font-medium text-emerald-400 mb-1">
                   Confirm *
@@ -304,7 +287,7 @@ const Step1 = ({ formData, handleChange, nextStep }) => {
               </div>
             </div>
 
-            {/* Navigation Buttons */}
+            {}
             <div className="flex justify-between pt-4 border-t border-emerald-500/20">
               <button
                 type="button"

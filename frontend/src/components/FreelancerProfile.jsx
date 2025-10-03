@@ -49,7 +49,6 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
       setLoading(true);
       setError("");
 
-      // Try the general getFreelancers endpoint first
       const response = await axios.get(
         `http://localhost:8000/api/freelancers/getFreelancers`,
         {
@@ -59,7 +58,6 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
 
       console.log("All freelancers response:", response.data);
 
-      // Find the current user from the freelancers list
       const currentFreelancer = response.data.find(
         (freelancer) => freelancer._id === freelancerId
       );
@@ -167,7 +165,7 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
 
   return (
     <div className="w-72 bg-white/95 backdrop-blur-lg shadow-2xl rounded-xl border border-green-200 transition-all duration-300 text-sm">
-      {/* Header */}
+      {}
       <div className="flex items-center p-4 bg-gradient-to-r from-green-100 to-green-200 rounded-t-xl border-b border-green-200">
         <label className="cursor-pointer mr-3">
           <div className="relative">
@@ -203,7 +201,7 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
       </div>
 
       <div className="p-3 space-y-3">
-        {/* Contact Info */}
+        {}
         <div className="flex items-center gap-2 text-xs text-gray-600">
           <FaEnvelope className="text-green-500" />
           <span className="truncate">{freelancer.email}</span>
@@ -221,7 +219,7 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
           </span>
         </div>
 
-        {/* Experience */}
+        {}
         <div className="flex items-center gap-2 text-xs text-gray-600">
           <FaBriefcase className="text-green-500" />
           <span>
@@ -231,7 +229,7 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
           </span>
         </div>
 
-        {/* Skills */}
+        {}
         <div>
           <div className="flex items-center gap-1 mb-1">
             <FaCode className="text-green-500 text-xs" />
@@ -258,7 +256,7 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
           )}
         </div>
 
-        {/* About Section */}
+        {}
         {freelancer.about && (
           <div className="border-t border-green-100 pt-2">
             <h3 className="text-xs font-semibold text-green-700 mb-1">About</h3>
@@ -268,7 +266,7 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        {/* Social Links */}
+        {}
         {(freelancer.github || freelancer.linkedin || freelancer.portfolio) && (
           <div className="flex gap-3 justify-center pt-2 border-t border-green-100">
             {freelancer.github && (
@@ -307,7 +305,7 @@ const FreelancerProfile = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        {/* Edit Profile Button */}
+        {}
         <div className="pt-2 border-t border-green-100">
           <button
             onClick={() => {

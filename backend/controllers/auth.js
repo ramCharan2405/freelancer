@@ -4,7 +4,7 @@ const User = require("../models/User");
 const dotenv = require("dotenv");
 dotenv.config();
 
-// REGISTER USER
+
 
 const registerUser = async (req, res) => {
   const newUser = User({
@@ -24,12 +24,12 @@ const registerUser = async (req, res) => {
   }
 };
 
-//LOGIN USER
+
 
 const loginUser = async (req, res) => {
-    console.log(req.body.email);
+
   try {
-    const user = await User.findOne({email: req.body.email });
+    const user = await User.findOne({ email: req.body.email });
     if (!user) {
       return res.status(401).json("You have not registered");
     }
@@ -58,4 +58,4 @@ const loginUser = async (req, res) => {
     res.status(500).json(error);
   }
 };
-module.exports={loginUser, registerUser}
+module.exports = { loginUser, registerUser }

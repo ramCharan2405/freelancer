@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext"; // ADD THIS
 import {
   FaBuilding,
   FaSave,
@@ -18,6 +19,7 @@ import {
 
 const EditCompanyProfile = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth(); // ADD THIS
   const [loading, setLoading] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [errors, setErrors] = useState({});
@@ -31,34 +33,37 @@ const EditCompanyProfile = () => {
     logo: "",
   });
 
-  const companyId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
-  const userRole = localStorage.getItem("userRole");
 
-  // Redirect if not company
   useEffect(() => {
-    if (!token) {
+    console.log("🔍 EditCompanyProfile - Auth check:", {
+      isAuthenticated,
+      user,
+      userRole: user?.role,
+      localStorageRole: localStorage.getItem("userRole"),
+    });
+
+    if (!isAuthenticated || !token) {
       alert("Please login to edit your profile");
       navigate("/");
       return;
     }
-    if (userRole !== "company") {
+
+    if (user?.role !== "company") {
       alert("Only companies can access this page");
       navigate("/");
       return;
     }
-  }, [userRole, token, navigate]);
+  }, [isAuthenticated, user, token, navigate]);
 
   useEffect(() => {
-    if (companyId && token) {
+    if (user?.role === "company" && token) {
       fetchCompanyProfile();
     }
-  }, [companyId, token]);
+  }, [user, token]);
 
   const fetchCompanyProfile = async () => {
     try {
-      console.log("🔄 Fetching company profile...");
-
       const response = await axios.get(
         `http://localhost:8000/api/companies/profile`,
         {
@@ -66,17 +71,11 @@ const EditCompanyProfile = () => {
         }
       );
 
-      console.log("✅ Company profile fetched:", response.data);
-
-      // FIXED: Handle the response data structure
       if (response.data.success === false) {
-        // Handle error response
-        console.error("❌ Profile fetch failed:", response.data.message);
         alert(response.data.message || "Failed to load profile data");
         return;
       }
 
-      // The response should now have the correct field mapping
       setCompany({
         organization: response.data.organization || "",
         email: response.data.email || "",
@@ -87,7 +86,6 @@ const EditCompanyProfile = () => {
         logo: response.data.logo || "",
       });
     } catch (err) {
-      console.error("❌ Error fetching company data:", err);
       const errorMessage =
         err.response?.data?.message || "Failed to load profile data";
       alert(errorMessage);
@@ -106,13 +104,11 @@ const EditCompanyProfile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       alert("File size must be less than 5MB");
       return;
     }
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
@@ -133,11 +129,10 @@ const EditCompanyProfile = () => {
           },
         }
       );
-      console.log("Logo uploaded successfully:", response.data);
+
       setCompany((prev) => ({ ...prev, logo: response.data.logo }));
       alert("Company logo updated successfully!");
     } catch (err) {
-      console.error("Logo upload failed:", err);
       alert(err.response?.data?.error || "Failed to upload company logo");
     } finally {
       setUploadingLogo(false);
@@ -181,8 +176,6 @@ const EditCompanyProfile = () => {
 
     setLoading(true);
     try {
-      console.log("🔄 Updating company profile...", company);
-
       const response = await axios.put(
         `http://localhost:8000/api/companies/update`,
         company,
@@ -191,8 +184,6 @@ const EditCompanyProfile = () => {
         }
       );
 
-      console.log("✅ Company profile updated successfully:", response.data);
-
       if (response.data.success) {
         alert("Company profile updated successfully!");
         navigate(-1); // Go back to previous page
@@ -200,7 +191,6 @@ const EditCompanyProfile = () => {
         alert(response.data.message || "Update failed");
       }
     } catch (err) {
-      console.error("❌ Update failed:", err);
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error ||
@@ -211,13 +201,13 @@ const EditCompanyProfile = () => {
     }
   };
 
-  if (userRole !== "company") {
-    return null; // Component will redirect in useEffect
+  if (!isAuthenticated || user?.role !== "company") {
+    return null;
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 p-6">
-      {/* Animated Background */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -225,9 +215,9 @@ const EditCompanyProfile = () => {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto">
-        {/* Dark Emerald Container */}
+        {}
         <div className="bg-slate-800/60 backdrop-blur-2xl rounded-3xl shadow-2xl border border-emerald-500/20 p-8 hover:shadow-emerald-500/20 transition-all duration-300">
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => navigate(-1)}
@@ -259,7 +249,7 @@ const EditCompanyProfile = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Company Logo Section */}
+            {}
             <div className="bg-slate-700/50 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
               <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
                 <FaBuilding className="text-emerald-400" />
@@ -306,7 +296,7 @@ const EditCompanyProfile = () => {
               </div>
             </div>
 
-            {/* Company Information */}
+            {}
             <div className="bg-slate-700/50 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
               <h3 className="text-xl font-semibold text-gray-200 mb-6 flex items-center gap-2">
                 <FaEdit className="text-emerald-400" />
@@ -401,7 +391,7 @@ const EditCompanyProfile = () => {
                 </div>
               </div>
 
-              {/* Address */}
+              {}
               <div className="mt-6">
                 <label className="block text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
                   <FaMapMarkerAlt />
@@ -419,7 +409,7 @@ const EditCompanyProfile = () => {
               </div>
             </div>
 
-            {/* Company Description */}
+            {}
             <div className="bg-slate-700/50 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
               <h3 className="text-xl font-semibold text-gray-200 mb-6 flex items-center gap-2">
                 <FaIndustry className="text-emerald-400" />
@@ -451,7 +441,7 @@ const EditCompanyProfile = () => {
               </div>
             </div>
 
-            {/* Submit Buttons */}
+            {}
             <div className="flex justify-between pt-8 border-t border-emerald-500/20">
               <button
                 type="button"
@@ -480,7 +470,7 @@ const EditCompanyProfile = () => {
             </div>
           </form>
 
-          {/* Help Section */}
+          {}
           <div className="mt-8 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-2xl p-6 rounded-2xl border border-emerald-500/20">
             <h3 className="font-bold text-lg text-emerald-400 mb-3">
               💡 Company Profile Tips

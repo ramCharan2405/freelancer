@@ -23,15 +23,18 @@ const companySchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: [50, "Industry cannot exceed 50 characters"],
+      default: ''
     },
     location: {
       type: String,
       trim: true,
       maxlength: [100, "Location cannot exceed 100 characters"],
+      default: ''
     },
     website: {
       type: String,
       trim: true,
+      default: '',
       validate: {
         validator: function (v) {
           return !v || /^https?:\/\/.+/.test(v);
@@ -43,15 +46,18 @@ const companySchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: [20, "Contact cannot exceed 20 characters"],
+      default: ''
     },
     description: {
       type: String,
       trim: true,
       maxlength: [1000, "Description cannot exceed 1000 characters"],
+      default: ''
     },
     profilePicture: {
       type: String,
       trim: true,
+      default: ''
     },
     employees: {
       type: Number,
@@ -84,19 +90,19 @@ const companySchema = new mongoose.Schema(
   }
 );
 
-// Index for search optimization
+
 companySchema.index({
   companyName: "text",
   industry: "text",
   location: "text",
 });
 
-// Virtual for display name
+
 companySchema.virtual("displayName").get(function () {
   return this.organization || this.companyName;
 });
 
-// Ensure virtual fields are serialized
+
 companySchema.set("toJSON", { virtuals: true });
 
 module.exports = mongoose.model("Company", companySchema);

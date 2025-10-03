@@ -5,7 +5,7 @@ const Company = require('../models/Company'); // ADD THIS IMPORT
 // Get jobs by company with detailed application data - FIXED
 const getJobsByCompany = async (req, res) => {
   try {
-    console.log('🔄 Fetching jobs for company user:', req.user.userId);
+    console.log('Fetching jobs for company user:', req.user.userId);
 
     // FIXED: Find company by user field, not direct user ID
     const company = await Company.findOne({ user: req.user.userId });
@@ -19,7 +19,7 @@ const getJobsByCompany = async (req, res) => {
       });
     }
 
-    console.log('✅ Company found:', company._id);
+    console.log(' Company found:', company._id);
 
     // Use company._id instead of req.user.userId
     const jobs = await Job.find({
@@ -28,7 +28,7 @@ const getJobsByCompany = async (req, res) => {
       .populate('company', 'companyName organization email industry location')
       .sort({ createdAt: -1 });
 
-    console.log('✅ Company jobs fetched:', jobs.length);
+    console.log(' Company jobs fetched:', jobs.length);
 
     // Get detailed application data for each job
     const jobsWithApplications = await Promise.all(
@@ -83,7 +83,7 @@ const getJobsByCompany = async (req, res) => {
       })
     );
 
-    console.log('✅ Jobs with applications processed');
+    console.log(' Jobs with applications processed');
 
     res.json({
       success: true,
@@ -92,7 +92,7 @@ const getJobsByCompany = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching company jobs:', error);
+    console.error(' Error fetching company jobs:', error);
     res.status(500).json({
       success: false,
       message: 'Server error fetching jobs',
@@ -105,8 +105,8 @@ const getJobsByCompany = async (req, res) => {
 // Create a new job - FIXED
 const createJob = async (req, res) => {
   try {
-    console.log('🔄 Creating job with data:', req.body);
-    console.log('🔄 User info:', req.user);
+    console.log(' Creating job with data:', req.body);
+    console.log(' User info:', req.user);
 
     // FIXED: Find company by user field first
     const company = await Company.findOne({ user: req.user.userId });
@@ -118,7 +118,7 @@ const createJob = async (req, res) => {
       });
     }
 
-    console.log('✅ Company found for job creation:', company._id);
+    console.log(' Company found for job creation:', company._id);
 
     // Handle both payPerHour and salary fields
     let salaryValue = 'Not specified';

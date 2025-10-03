@@ -5,7 +5,7 @@ const FreelancerDetails = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-green-100">
-      {/* Tab Navigation */}
+      {}
       <div className="flex gap-4 mb-8 justify-center">
         {[
           { key: "pastWork", label: "Past Work" },
@@ -26,7 +26,7 @@ const FreelancerDetails = () => {
         ))}
       </div>
 
-      {/* Content Section */}
+      {}
       <div className="bg-green-50 p-8 rounded-2xl shadow-inner min-h-[120px] text-green-900 font-medium text-lg flex items-center justify-center">
         {activeTab === "pastWork" && <p>Show past work details here...</p>}
         {activeTab === "pendingAmount" && (
@@ -35,7 +35,7 @@ const FreelancerDetails = () => {
         {activeTab === "companies" && <p>List of companies worked for...</p>}
       </div>
 
-      {/* Search & Filter Section */}
+      {}
       <div className="mt-8 flex justify-center">
         <input
           type="text"

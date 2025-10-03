@@ -98,7 +98,7 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
         className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Glassy Modal Container */}
+        {}
         <div
           className="bg-white/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl"
           style={{
@@ -106,7 +106,7 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
           }}
         >
-          {/* Header */}
+          {}
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-t-2xl relative">
             <button
               onClick={onClose}
@@ -118,10 +118,10 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
             <p className="text-blue-100">Update job details and requirements</p>
           </div>
 
-          {/* Content */}
+          {}
           <div className="p-6 max-h-[70vh] overflow-y-auto">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Job Title */}
+              {}
               <div>
                 <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                   <FaBriefcase className="mr-2 text-blue-500" />
@@ -138,7 +138,7 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
                 />
               </div>
 
-              {/* Description */}
+              {}
               <div>
                 <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                   <FaListUl className="mr-2 text-blue-500" />
@@ -154,7 +154,7 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
                 />
               </div>
 
-              {/* Pay Per Hour */}
+              {}
               <div>
                 <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
                   <FaDollarSign className="mr-2 text-green-500" />
@@ -173,7 +173,7 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
                 />
               </div>
 
-              {/* Experience Level */}
+              {}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Experience Level *
@@ -193,7 +193,7 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
                 </select>
               </div>
 
-              {/* Status */}
+              {}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Job Status
@@ -209,7 +209,7 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
                 </select>
               </div>
 
-              {/* Skills Required */}
+              {}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Skills Required
@@ -257,7 +257,7 @@ const JobEditModal = ({ job, isOpen, onClose, onUpdate }) => {
             </form>
           </div>
 
-          {/* Footer */}
+          {}
           <div className="px-6 py-4 bg-gray-50/80 rounded-b-2xl flex justify-end space-x-3">
             <button
               type="button"

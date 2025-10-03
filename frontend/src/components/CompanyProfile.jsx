@@ -77,7 +77,7 @@ const CompanyProfile = ({ isOpen, onClose }) => {
 
   return (
     <div className="w-72 bg-white/95 backdrop-blur-lg shadow-2xl rounded-xl border border-green-200 transition-all duration-300 text-sm">
-      {/* Header */}
+      {}
       <div className="flex items-center p-4 bg-gradient-to-r from-green-100 to-green-200 rounded-t-xl border-b border-green-200">
         <label className="cursor-pointer mr-3">
           <div className="relative">
@@ -113,7 +113,7 @@ const CompanyProfile = ({ isOpen, onClose }) => {
       </div>
 
       <div className="p-3 space-y-3">
-        {/* Contact Info */}
+        {}
         <div className="flex items-center gap-2 text-xs text-gray-600">
           <FaPhone className="text-green-500" />
           <span>{company.contact || "No contact"}</span>
@@ -124,7 +124,7 @@ const CompanyProfile = ({ isOpen, onClose }) => {
           <span className="truncate">{company.address || "No address"}</span>
         </div>
 
-        {/* Website */}
+        {}
         {company.website && (
           <div className="flex items-center gap-2">
             <FaGlobe className="text-green-500" />
@@ -143,7 +143,7 @@ const CompanyProfile = ({ isOpen, onClose }) => {
           </div>
         )}
 
-        {/* About */}
+        {}
         <div>
           <h3 className="text-xs font-semibold text-green-700 mb-1">About</h3>
           <p className="text-xs text-gray-700 line-clamp-2">
@@ -151,7 +151,7 @@ const CompanyProfile = ({ isOpen, onClose }) => {
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {}
         <div className="flex gap-2 pt-2">
           <button
             className="flex-1 bg-gradient-to-r from-green-400 to-green-500 text-white py-1.5 px-2 rounded-lg hover:from-green-500 hover:to-green-600 transition font-semibold text-xs"
@@ -175,7 +175,7 @@ const CompanyProfile = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {/* Edit Profile Button */}
+        {}
         <div className="pt-2 border-t border-green-100 mt-3">
           <button
             onClick={() => navigate("/edit-company-profile")}

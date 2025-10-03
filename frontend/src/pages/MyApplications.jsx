@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+
 import {
   FaSpinner,
   FaClock,
@@ -12,7 +13,61 @@ import {
   FaMapMarkerAlt,
   FaCalendarAlt,
   FaFileAlt,
+  FaComments,
+  FaEnvelope,
 } from "react-icons/fa";
+
+const CoverLetterModal = ({ isOpen, onClose, coverLetter, jobTitle }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+      <div className="bg-slate-800 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden border border-emerald-500/30 shadow-2xl animate-slideUp">
+        {}
+        <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-b border-emerald-500/30 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-emerald-500/20 p-3 rounded-xl">
+                <FaEnvelope className="text-emerald-400 text-2xl" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Cover Letter</h2>
+                <p className="text-gray-400 text-sm mt-1">{jobTitle}</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-slate-700 rounded-lg"
+            >
+              <FaTimes className="text-2xl" />
+            </button>
+          </div>
+        </div>
+
+        {}
+        <div className="p-6 overflow-y-auto max-h-[calc(80vh-180px)] custom-scrollbar">
+          <div className="prose prose-invert max-w-none">
+            <p className="text-gray-300 text-base leading-relaxed whitespace-pre-wrap">
+              {coverLetter}
+            </p>
+          </div>
+        </div>
+
+        {}
+        <div className="bg-slate-700/50 border-t border-gray-600/30 p-6">
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 font-medium shadow-lg hover:shadow-emerald-500/20"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MyApplications = () => {
   const { user, isAuthenticated } = useAuth();
@@ -21,7 +76,10 @@ const MyApplications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Redirect if not authenticated or not a freelancer
+  const [selectedCoverLetter, setSelectedCoverLetter] = useState(null);
+  const [selectedJobTitle, setSelectedJobTitle] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     if (!isAuthenticated || user?.role !== "freelancer") {
       navigate("/login");
@@ -29,7 +87,6 @@ const MyApplications = () => {
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Fetch applications
   useEffect(() => {
     if (isAuthenticated && user?.role === "freelancer") {
       fetchApplications();
@@ -58,25 +115,33 @@ const MyApplications = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("✅ Applications fetched:", data);
 
-        // Ensure applications is always an array
         const applicationsArray = data.applications || data.data || [];
         setApplications(
           Array.isArray(applicationsArray) ? applicationsArray : []
         );
       } else {
-        console.error("❌ Failed to fetch applications:", response.status);
         setError("Failed to fetch applications");
         setApplications([]);
       }
     } catch (error) {
-      console.error("❌ Error fetching applications:", error);
       setError("Error fetching applications");
       setApplications([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const openCoverLetterModal = (coverLetter, jobTitle) => {
+    setSelectedCoverLetter(coverLetter);
+    setSelectedJobTitle(jobTitle);
+    setIsModalOpen(true);
+  };
+
+  const closeCoverLetterModal = () => {
+    setIsModalOpen(false);
+    setSelectedCoverLetter(null);
+    setSelectedJobTitle("");
   };
 
   const getStatusColor = (status) => {
@@ -124,7 +189,6 @@ const MyApplications = () => {
       : `$${salary}`;
   };
 
-  // Filter applications by status
   const pendingApplications = Array.isArray(applications)
     ? applications.filter((app) => app.status === "pending")
     : [];
@@ -149,7 +213,7 @@ const MyApplications = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 pt-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        {}
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-lime-400 bg-clip-text text-transparent">
             My Applications
@@ -159,14 +223,14 @@ const MyApplications = () => {
           </p>
         </div>
 
-        {/* Error Message */}
+        {}
         {error && (
           <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
             <p className="text-red-400">{error}</p>
           </div>
         )}
 
-        {/* Stats Cards */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-slate-800/60 backdrop-blur-2xl border border-blue-500/20 rounded-2xl p-6">
             <div className="flex items-center justify-between">
@@ -217,8 +281,8 @@ const MyApplications = () => {
           </div>
         </div>
 
-        {/* Applications List */}
-        <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-2xl p-6">
+        {}
+        <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-2xl p-6 mb-8">
           <h2 className="text-2xl font-bold text-white mb-6">
             Application History
           </h2>
@@ -243,7 +307,7 @@ const MyApplications = () => {
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      {/* Job Info */}
+                      {}
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-semibold text-white">
                           {application.job?.title || "Unknown Job"}
@@ -262,7 +326,7 @@ const MyApplications = () => {
                         </div>
                       </div>
 
-                      {/* Company Info */}
+                      {}
                       {application.job?.company && (
                         <div className="flex items-center text-gray-400 mb-3">
                           <FaBuilding className="mr-2" />
@@ -273,7 +337,7 @@ const MyApplications = () => {
                         </div>
                       )}
 
-                      {/* Job Details */}
+                      {}
                       <div className="flex flex-wrap gap-4 text-sm text-gray-300 mb-4">
                         <div className="flex items-center space-x-1">
                           <FaDollarSign className="text-emerald-400" />
@@ -295,38 +359,70 @@ const MyApplications = () => {
                         </div>
                       </div>
 
-                      {/* Cover Letter Preview */}
+                      {}
                       {application.coverLetter && (
                         <div className="mb-4">
-                          <p className="text-gray-400 text-sm mb-1">
-                            Cover Letter:
-                          </p>
-                          <p className="text-gray-300 text-sm bg-slate-800/50 p-3 rounded line-clamp-2">
-                            {application.coverLetter}
-                          </p>
+                          <button
+                            onClick={() =>
+                              openCoverLetterModal(
+                                application.coverLetter,
+                                application.job?.title || "Unknown Job"
+                              )
+                            }
+                            className="flex items-center space-x-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 transition-all duration-300"
+                          >
+                            <FaEnvelope />
+                            <span>View Cover Letter</span>
+                          </button>
                         </div>
                       )}
 
-                      {/* Response */}
+                      {}
                       {application.response && (
                         <div className="mb-4">
-                          <p className="text-gray-400 text-sm mb-1">
+                          <p className="text-gray-400 text-sm mb-2 font-medium">
                             Company Response:
                           </p>
-                          <p className="text-gray-300 text-sm bg-slate-800/50 p-3 rounded">
-                            {application.response}
+                          <div className="bg-slate-800/50 border border-gray-600/30 rounded-lg p-4">
+                            <p className="text-gray-300 text-sm">
+                              {application.response}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {}
+                      {application.status === "accepted" && (
+                        <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 text-green-400 mb-2">
+                            <FaCheck className="text-lg" />
+                            <p className="font-semibold">
+                              Congratulations! Your application has been
+                              accepted
+                            </p>
+                          </div>
+                          <p className="text-gray-300 text-sm mb-3">
+                            A chat has been created for you to discuss project
+                            details with the company.
                           </p>
+                          <button
+                            onClick={() => navigate("/messages")}
+                            className="flex items-center space-x-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 transition-all duration-300"
+                          >
+                            <FaComments />
+                            <span>Go to Messages</span>
+                          </button>
                         </div>
                       )}
                     </div>
 
-                    {/* Actions */}
+                    {}
                     <div className="ml-6">
                       <button
                         onClick={() =>
                           navigate(`/jobs/${application.job?._id}`)
                         }
-                        className="flex items-center space-x-2 px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
+                        className="flex items-center space-x-2 px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-colors"
                       >
                         <FaEye />
                         <span>View Job</span>
@@ -339,6 +435,56 @@ const MyApplications = () => {
           )}
         </div>
       </div>
+
+      {}
+      <CoverLetterModal
+        isOpen={isModalOpen}
+        onClose={closeCoverLetterModal}
+        coverLetter={selectedCoverLetter}
+        jobTitle={selectedJobTitle}
+      />
+
+      {}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(51, 65, 85, 0.3);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(16, 185, 129, 0.5);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(16, 185, 129, 0.7);
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes slideUp {
+          from {
+            transform: translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+        .animate-slideUp {
+          animation: slideUp 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

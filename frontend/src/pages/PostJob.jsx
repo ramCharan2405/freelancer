@@ -29,7 +29,6 @@ const PostJob = () => {
   const token = localStorage.getItem("token");
   const userRole = localStorage.getItem("userRole");
 
-  // Redirect if not company
   React.useEffect(() => {
     if (!token) {
       alert("Please login to post a job");
@@ -47,7 +46,6 @@ const PostJob = () => {
     const { name, value } = e.target;
     setJobData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -151,7 +149,7 @@ const PostJob = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 p-6">
-      {/* Animated Background */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -159,9 +157,9 @@ const PostJob = () => {
       </div>
 
       <div className="relative z-10 max-w-2xl mx-auto">
-        {/* Dark Emerald Container */}
+        {}
         <div className="bg-slate-800/60 backdrop-blur-2xl rounded-3xl shadow-2xl border border-emerald-500/20 p-8 hover:shadow-emerald-500/20 transition-all duration-300">
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => navigate(-1)}
@@ -185,7 +183,7 @@ const PostJob = () => {
             </button>
           </div>
 
-          {/* Submit Error */}
+          {}
           {errors.submit && (
             <div className="bg-red-500/20 border border-red-500/30 text-red-400 px-6 py-4 rounded-2xl mb-6 backdrop-blur-2xl">
               {errors.submit}
@@ -193,7 +191,7 @@ const PostJob = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Job Title */}
+            {}
             <div>
               <label className="block text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
                 <FaBriefcase />
@@ -219,7 +217,7 @@ const PostJob = () => {
               </p>
             </div>
 
-            {/* Job Description */}
+            {}
             <div>
               <label className="block text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
                 <FaFileAlt />
@@ -245,7 +243,7 @@ const PostJob = () => {
               </p>
             </div>
 
-            {/* Skills Required */}
+            {}
             <div>
               <label className="block text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
                 <FaCode />
@@ -265,7 +263,7 @@ const PostJob = () => {
               </p>
             </div>
 
-            {/* Pay Per Hour and Experience Level */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
@@ -319,7 +317,7 @@ const PostJob = () => {
               </div>
             </div>
 
-            {/* Submit Buttons */}
+            {}
             <div className="flex justify-between pt-8 border-t border-emerald-500/20">
               <button
                 type="button"
@@ -348,7 +346,7 @@ const PostJob = () => {
             </div>
           </form>
 
-          {/* Help Section */}
+          {}
           <div className="mt-8 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-2xl p-6 rounded-2xl border border-emerald-500/20">
             <h3 className="font-bold text-lg text-emerald-400 mb-3">
               💡 Tips for a Great Job Post

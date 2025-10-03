@@ -48,7 +48,7 @@ const LoginPage = () => {
             Join as a client or freelancer
           </h2>
 
-          {/* Role Selection */}
+          {}
           <div className="flex justify-center gap-10 mb-10">
             <div
               className={`flex flex-col items-center border-2 p-7 rounded-xl cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg ${
@@ -87,7 +87,7 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Buttons */}
+          {}
           <div className="flex flex-col items-center">
             <button
               className="bg-gradient-to-r from-green-500 to-green-600 text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:from-green-600 hover:to-green-700 hover:scale-105 transition duration-300 w-full"
@@ -109,7 +109,7 @@ const LoginPage = () => {
         <ToastContainer />
       </div>
 
-      {/* Login Modal */}
+      {}
       <Login
         isOpen={showLogin}
         onClose={closeLogin}

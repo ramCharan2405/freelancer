@@ -90,7 +90,7 @@ const jobSchema = new mongoose.Schema(
     }
 );
 
-// Add indexes for better performance
+
 jobSchema.index({ company: 1, status: 1 });
 jobSchema.index({ title: "text", description: "text" });
 jobSchema.index({ skills: 1 });

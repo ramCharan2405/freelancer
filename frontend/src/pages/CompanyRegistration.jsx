@@ -39,25 +39,22 @@ const CompanyRegistration = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Clear error when user starts typing
+
     if (error) setError("");
   };
 
-  // FIXED: Update the handleSubmit function with proper auth integration
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     setSuccess("");
 
-    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       setLoading(false);
       return;
     }
 
-    // Validate password length
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long");
       setLoading(false);
@@ -95,15 +92,11 @@ const CompanyRegistration = () => {
       );
 
       const data = await response.json();
-      console.log("📥 Company registration response:", data);
 
       if (response.ok && data.success) {
-        console.log("✅ Company registration successful");
         setSuccess("Company registered successfully! Logging you in...");
 
-        // FIXED: Better auto-login implementation
         if (data.token && data.user) {
-          // Registration response includes token and user data
           const userData = {
             id: data.user.id,
             email: data.user.email,
@@ -117,9 +110,6 @@ const CompanyRegistration = () => {
           const loginSuccess = login(userData, data.token);
 
           if (loginSuccess) {
-            console.log("✅ Auto-login successful");
-
-            // Clear form
             setFormData({
               companyName: "",
               email: "",
@@ -132,17 +122,14 @@ const CompanyRegistration = () => {
               description: "",
             });
 
-            // Redirect to dashboard
             setTimeout(() => {
-              navigate("/company-dashboard");
+              navigate("/");
             }, 1000);
           } else {
-            // Fallback to manual login
             setSuccess("Registration successful! Please login to continue.");
             setTimeout(() => navigate("/login"), 2000);
           }
         } else {
-          // Try auto-login with separate request
           try {
             const loginResponse = await fetch(
               "http://localhost:8000/api/companies/login",
@@ -175,9 +162,6 @@ const CompanyRegistration = () => {
               const loginSuccess = login(userData, loginData.token);
 
               if (loginSuccess) {
-                console.log("✅ Auto-login successful");
-
-                // Clear form
                 setFormData({
                   companyName: "",
                   email: "",
@@ -190,7 +174,6 @@ const CompanyRegistration = () => {
                   description: "",
                 });
 
-                // Redirect to dashboard
                 setTimeout(() => {
                   navigate("/company-dashboard");
                 }, 1000);
@@ -205,17 +188,14 @@ const CompanyRegistration = () => {
               setTimeout(() => navigate("/login"), 2000);
             }
           } catch (loginError) {
-            console.error("❌ Auto-login failed:", loginError);
             setSuccess("Registration successful! Please login to continue.");
             setTimeout(() => navigate("/login"), 2000);
           }
         }
       } else {
-        console.log("❌ Company registration failed:", data);
         setError(data.message || "Registration failed. Please try again.");
       }
     } catch (error) {
-      console.error("❌ Company registration error:", error);
       setError("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
@@ -225,7 +205,7 @@ const CompanyRegistration = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full space-y-8">
-        {/* Header */}
+        {}
         <div className="text-center">
           <div className="flex justify-center">
             <div className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl p-4 shadow-2xl">
@@ -240,19 +220,19 @@ const CompanyRegistration = () => {
           </p>
         </div>
 
-        {/* Form */}
+        {}
         <form
           className="mt-8 space-y-6 bg-slate-800/60 backdrop-blur-2xl p-8 rounded-3xl border border-emerald-500/20 shadow-2xl"
           onSubmit={handleSubmit}
         >
-          {/* Success Message */}
+          {}
           {success && (
             <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg">
               {success}
             </div>
           )}
 
-          {/* Error Message */}
+          {}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
@@ -260,7 +240,7 @@ const CompanyRegistration = () => {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Company Name */}
+            {}
             <div>
               <label
                 htmlFor="companyName"
@@ -285,7 +265,7 @@ const CompanyRegistration = () => {
               </div>
             </div>
 
-            {/* Email */}
+            {}
             <div>
               <label
                 htmlFor="email"
@@ -310,7 +290,7 @@ const CompanyRegistration = () => {
               </div>
             </div>
 
-            {/* Password */}
+            {}
             <div>
               <label
                 htmlFor="password"
@@ -343,7 +323,7 @@ const CompanyRegistration = () => {
               </div>
             </div>
 
-            {/* Confirm Password */}
+            {}
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -376,7 +356,7 @@ const CompanyRegistration = () => {
               </div>
             </div>
 
-            {/* Industry */}
+            {}
             <div>
               <label
                 htmlFor="industry"
@@ -399,7 +379,7 @@ const CompanyRegistration = () => {
               </div>
             </div>
 
-            {/* Location */}
+            {}
             <div>
               <label
                 htmlFor="location"
@@ -422,7 +402,7 @@ const CompanyRegistration = () => {
               </div>
             </div>
 
-            {/* Website */}
+            {}
             <div>
               <label
                 htmlFor="website"
@@ -445,7 +425,7 @@ const CompanyRegistration = () => {
               </div>
             </div>
 
-            {/* Contact */}
+            {}
             <div>
               <label
                 htmlFor="contact"
@@ -469,7 +449,7 @@ const CompanyRegistration = () => {
             </div>
           </div>
 
-          {/* Description */}
+          {}
           <div>
             <label
               htmlFor="description"
@@ -489,7 +469,7 @@ const CompanyRegistration = () => {
             />
           </div>
 
-          {/* Submit Button */}
+          {}
           <div>
             <button
               type="submit"
@@ -507,7 +487,7 @@ const CompanyRegistration = () => {
             </button>
           </div>
 
-          {/* Login Link */}
+          {}
           <div className="text-center">
             <p className="text-gray-400">
               Already have an account?{" "}

@@ -85,14 +85,14 @@ const freelancerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Add indexes for better performance
+
 freelancerSchema.index({ user: 1 });
 freelancerSchema.index({ skills: 1 });
 freelancerSchema.index({ location: 1 });
 freelancerSchema.index({ isAvailable: 1 });
 freelancerSchema.index({ rating: -1 });
 
-// Virtual for average rating
+
 freelancerSchema.virtual('averageRating').get(function () {
   return this.reviewCount > 0 ? (this.rating / this.reviewCount).toFixed(1) : 0;
 });

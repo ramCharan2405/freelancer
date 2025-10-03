@@ -61,7 +61,7 @@ const Step2 = ({ formData, handleChange, nextStep, prevStep }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 flex items-center justify-center p-4">
-      {/* Background Effects */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -69,7 +69,7 @@ const Step2 = ({ formData, handleChange, nextStep, prevStep }) => {
 
       <div className="relative z-10 w-full max-w-lg">
         <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-500/20 p-6">
-          {/* Compact Header */}
+          {}
           <div className="text-center mb-6">
             <div className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-xl p-3 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
               <FaUser className="text-white text-lg" />
@@ -85,9 +85,9 @@ const Step2 = ({ formData, handleChange, nextStep, prevStep }) => {
             </div>
           </div>
 
-          {/* Compact Form */}
+          {}
           <form className="space-y-4">
-            {/* Phone and Gender Row */}
+            {}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium text-emerald-400 mb-1">
@@ -135,7 +135,7 @@ const Step2 = ({ formData, handleChange, nextStep, prevStep }) => {
               </div>
             </div>
 
-            {/* Date of Birth */}
+            {}
             <div>
               <label className="block text-sm font-medium text-emerald-400 mb-1">
                 Date of Birth *
@@ -160,7 +160,7 @@ const Step2 = ({ formData, handleChange, nextStep, prevStep }) => {
               )}
             </div>
 
-            {/* Address */}
+            {}
             <div>
               <label className="block text-sm font-medium text-emerald-400 mb-1">
                 Address/Location *
@@ -182,7 +182,7 @@ const Step2 = ({ formData, handleChange, nextStep, prevStep }) => {
               )}
             </div>
 
-            {/* Additional Professional Details */}
+            {}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium text-emerald-400 mb-1">
@@ -225,7 +225,7 @@ const Step2 = ({ formData, handleChange, nextStep, prevStep }) => {
               </div>
             </div>
 
-            {/* Navigation Buttons */}
+            {}
             <div className="flex justify-between pt-4 border-t border-emerald-500/20">
               <button
                 type="button"

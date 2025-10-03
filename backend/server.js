@@ -1,40 +1,114 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./config/db");
+const http = require("http");
+const socketIo = require("socket.io");
+const mongoose = require("mongoose");
+const fs = require('fs');
+const path = require('path');
+
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 const app = express();
+const server = http.createServer(app);
 
-// Connect to MongoDB
-connectDB();
+const io = socketIo(server, {
+  cors: {
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket', 'polling']
+});
 
-// Middleware
+app.set('io', io);
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging middleware
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  const timestamp = new Date().toISOString();
+  console.log(`${timestamp} - ${req.method} ${req.path}`);
   next();
 });
 
-// Import routes
-const freelancerRoute = require("./routes/freelancerRoute");
-const companyRoute = require("./routes/companyRoute");
-const jobRoute = require("./routes/jobRoute");
-const applicationRoute = require("./routes/applicationRoute");
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
-// Register routes - IMPORTANT: Register freelancer routes BEFORE other routes
-app.use("/api/freelancers", freelancerRoute);
-app.use("/api/companies", companyRoute);
-app.use("/api/jobs", jobRoute);
-app.use("/api/applications", applicationRoute);
+const freelancerRoutes = require('./routes/freelancerRoute');
+const companyRoutes = require('./routes/companyRoute');
+const jobRoutes = require('./routes/jobRoute');
+const applicationRoutes = require('./routes/applicationRoute');
+const chatRoutes = require('./routes/chatRoute');
+const messageRoutes = require('./routes/messageRoute');
+const chatbotRoutes = require('./routes/chatbotRoute');
 
-// Health check route
+app.use('/api/freelancers', freelancerRoutes);
+app.use('/api/companies', companyRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/chats', chatRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+const activeUsers = new Map();
+
+io.on('connection', (socket) => {
+  console.log('🔌 New socket connection:', socket.id);
+
+  socket.on('user:join', (userId) => {
+    console.log('👤 User joined:', userId);
+    activeUsers.set(userId, socket.id);
+    socket.userId = userId;
+    socket.join(userId);
+    io.emit('user:online', userId);
+  });
+
+  socket.on('chat:join', (chatId) => {
+    socket.join(chatId);
+    console.log(`💬 Socket ${socket.id} (user: ${socket.userId}) joined chat ${chatId}`);
+  });
+
+  socket.on('chat:leave', (chatId) => {
+    socket.leave(chatId);
+    console.log(`💬 Socket ${socket.id} left chat ${chatId}`);
+  });
+
+  socket.on('typing:start', ({ chatId }) => {
+    console.log(`⌨️ User ${socket.userId} typing in chat ${chatId}`);
+    socket.to(chatId).emit('user:typing', { chatId, userId: socket.userId });
+  });
+
+  socket.on('typing:stop', ({ chatId }) => {
+    console.log(`⌨️ User ${socket.userId} stopped typing in chat ${chatId}`);
+    socket.to(chatId).emit('user:stop-typing', { chatId, userId: socket.userId });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('🔌 Socket disconnected:', socket.id);
+    if (socket.userId) {
+      activeUsers.delete(socket.userId);
+      io.emit('user:offline', socket.userId);
+    }
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({
     status: 'OK',
@@ -43,7 +117,6 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Root route
 app.get("/", (req, res) => {
   res.json({
     message: "Freelancing Platform API",
@@ -52,12 +125,14 @@ app.get("/", (req, res) => {
       freelancers: "/api/freelancers",
       companies: "/api/companies",
       jobs: "/api/jobs",
-      applications: "/api/applications"
+      applications: "/api/applications",
+      chats: "/api/chats",
+      messages: "/api/messages",
+      chatbot: "/api/chatbot"
     }
   });
 });
 
-// 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -66,10 +141,8 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global error handler
 app.use((error, req, res, next) => {
-  console.error('💥 Global Error Handler:', error);
-
+  console.error('❌ Server Error:', error);
   res.status(error.status || 500).json({
     success: false,
     message: error.message || 'Internal Server Error',
@@ -79,25 +152,34 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 8000;
 
-app.listen(PORT, () => {
-  console.log('🚀 Server started successfully!');
-  console.log(`🌐 Server running on port ${PORT}`);
-  console.log(`📋 API documentation available at http://localhost:${PORT}`);
-  console.log('📍 Available endpoints:');
-  console.log('   - Freelancers: http://localhost:${PORT}/api/freelancers');
-  console.log('   - Companies: http://localhost:${PORT}/api/companies');
-  console.log('   - Jobs: http://localhost:${PORT}/api/jobs');
-  console.log('   - Applications: http://localhost:${PORT}/api/applications');
-  console.log('🔥 Ready to accept requests!');
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📡 Socket.IO server ready`);
+  console.log(`🤖 AI Chatbot ready`);
+  console.log(`🌐 API available at http://localhost:${PORT}`);
+  console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('👋 SIGTERM received, shutting down gracefully');
-  process.exit(0);
+  console.log('👋 SIGTERM signal received: closing HTTP server');
+  server.close(() => {
+    console.log('✅ HTTP server closed');
+    mongoose.connection.close(false, () => {
+      console.log('✅ MongoDB connection closed');
+      process.exit(0);
+    });
+  });
 });
 
 process.on('SIGINT', () => {
-  console.log('👋 SIGINT received, shutting down gracefully');
-  process.exit(0);
+  console.log('👋 SIGINT signal received: closing HTTP server');
+  server.close(() => {
+    console.log('✅ HTTP server closed');
+    mongoose.connection.close(false, () => {
+      console.log('✅ MongoDB connection closed');
+      process.exit(0);
+    });
+  });
 });
+
+module.exports = { app, io };

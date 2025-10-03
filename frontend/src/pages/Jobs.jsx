@@ -23,7 +23,6 @@ const Jobs = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // State management
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +51,6 @@ const Jobs = () => {
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      console.log("🔄 Fetching jobs...");
 
       const response = await fetch("http://localhost:8000/api/jobs/all", {
         headers: {
@@ -62,14 +60,12 @@ const Jobs = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("✅ Jobs fetched:", data);
+
         setJobs(data.jobs || []);
       } else {
-        console.error("❌ Failed to fetch jobs");
         setError("Failed to load jobs");
       }
     } catch (error) {
-      console.error("❌ Error fetching jobs:", error);
       setError("Error loading jobs");
     } finally {
       setLoading(false);
@@ -97,17 +93,13 @@ const Jobs = () => {
           data.applications?.map((app) => app.job?._id).filter(Boolean) || []
         );
         setAppliedJobs(appliedJobIds);
-        console.log("✅ Applied jobs fetched:", appliedJobIds);
       }
-    } catch (error) {
-      console.error("❌ Error fetching applied jobs:", error);
-    }
+    } catch (error) {}
   };
 
   const filterAndSortJobs = () => {
     let filtered = [...jobs];
 
-    // Apply filters
     if (searchTerm) {
       filtered = filtered.filter(
         (job) =>
@@ -129,7 +121,6 @@ const Jobs = () => {
       filtered = filtered.filter((job) => job.experience === experienceFilter);
     }
 
-    // Apply sorting
     switch (sortBy) {
       case "newest":
         filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -234,20 +225,17 @@ const Jobs = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log("✅ Application submitted:", result);
 
-        // Update applied jobs set
         setAppliedJobs((prev) => new Set([...prev, selectedJob._id]));
 
         alert("Application submitted successfully!");
         closeApplicationModal();
       } else {
         const errorData = await response.json();
-        console.error("❌ Application failed:", errorData);
+
         alert(errorData.message || "Failed to submit application");
       }
     } catch (error) {
-      console.error("❌ Error applying for job:", error);
       alert("Error submitting application");
     } finally {
       setApplying((prev) => {
@@ -272,7 +260,7 @@ const Jobs = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 pt-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {}
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-lime-400 bg-clip-text text-transparent">
             Browse Jobs
@@ -282,17 +270,17 @@ const Jobs = () => {
           </p>
         </div>
 
-        {/* Error Message */}
+        {}
         {error && (
           <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
             <p className="text-red-400">{error}</p>
           </div>
         )}
 
-        {/* Filters and Search */}
+        {}
         <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-2xl p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Search */}
+            {}
             <div className="relative">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -304,7 +292,7 @@ const Jobs = () => {
               />
             </div>
 
-            {/* Location Filter */}
+            {}
             <div className="relative">
               <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -316,7 +304,7 @@ const Jobs = () => {
               />
             </div>
 
-            {/* Experience Filter */}
+            {}
             <select
               value={experienceFilter}
               onChange={(e) => setExperienceFilter(e.target.value)}
@@ -328,7 +316,7 @@ const Jobs = () => {
               <option value="senior">Senior</option>
             </select>
 
-            {/* Sort */}
+            {}
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
@@ -341,7 +329,7 @@ const Jobs = () => {
           </div>
         </div>
 
-        {/* Jobs List */}
+        {}
         {filteredJobs.length === 0 ? (
           <div className="text-center py-12">
             <FaBriefcase className="text-6xl text-gray-600 mx-auto mb-4" />
@@ -358,7 +346,7 @@ const Jobs = () => {
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    {/* Job Header */}
+                    {}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <h3 className="text-xl font-semibold text-white mb-2">
@@ -380,7 +368,7 @@ const Jobs = () => {
                         </div>
                       </div>
 
-                      {/* Application Status */}
+                      {}
                       {appliedJobs.has(job._id) && (
                         <div className="flex items-center space-x-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm">
                           <FaCheckCircle />
@@ -389,12 +377,12 @@ const Jobs = () => {
                       )}
                     </div>
 
-                    {/* Job Description */}
+                    {}
                     <p className="text-gray-300 mb-4 line-clamp-2">
                       {job.description || "No description available"}
                     </p>
 
-                    {/* Job Details */}
+                    {}
                     <div className="flex flex-wrap gap-4 text-sm text-gray-300 mb-4">
                       <div className="flex items-center space-x-1">
                         <FaDollarSign className="text-emerald-400" />
@@ -423,7 +411,7 @@ const Jobs = () => {
                       )}
                     </div>
 
-                    {/* Skills */}
+                    {}
                     {job.skills && job.skills.length > 0 && (
                       <div className="mb-4">
                         <div className="flex flex-wrap gap-2">
@@ -446,7 +434,7 @@ const Jobs = () => {
                   </div>
                 </div>
 
-                {/* Actions */}
+                {}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-600/30">
                   <div className="flex space-x-3">
                     <button
@@ -504,11 +492,11 @@ const Jobs = () => {
           </div>
         )}
 
-        {/* Application Modal */}
+        {}
         {showApplicationModal && selectedJob && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              {/* Modal Header */}
+              {}
               <div className="sticky top-0 bg-slate-800 border-b border-gray-600/30 p-6 flex justify-between items-start">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-2">
@@ -528,9 +516,9 @@ const Jobs = () => {
                 </button>
               </div>
 
-              {/* Modal Content */}
+              {}
               <div className="p-6">
-                {/* Job Summary */}
+                {}
                 <div className="bg-slate-700/30 rounded-xl p-4 mb-6">
                   <h3 className="text-lg font-semibold text-white mb-3">
                     Job Summary
@@ -555,7 +543,7 @@ const Jobs = () => {
                   </div>
                 </div>
 
-                {/* Cover Letter */}
+                {}
                 <div className="mb-6">
                   <label className="block text-white font-semibold mb-3">
                     Cover Letter (Optional)
@@ -571,7 +559,7 @@ const Jobs = () => {
                   </p>
                 </div>
 
-                {/* Application Note */}
+                {}
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
                   <div className="flex items-start space-x-3">
                     <FaExclamationCircle className="text-blue-400 mt-1" />
@@ -588,7 +576,7 @@ const Jobs = () => {
                   </div>
                 </div>
 
-                {/* Actions */}
+                {}
                 <div className="flex space-x-4">
                   <button
                     onClick={handleApplyForJob}

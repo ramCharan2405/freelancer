@@ -55,7 +55,7 @@ const Projects = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 p-8">
-      {/* Header */}
+      {}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-extrabold text-green-700 mb-2">
           Projects
@@ -65,9 +65,9 @@ const Projects = () => {
         </p>
       </div>
 
-      {/* Filter & Sort Controls */}
+      {}
       <div className="flex flex-wrap justify-between items-center gap-6 mb-10 bg-white/90 backdrop-blur-lg rounded-2xl shadow-lg border border-green-100 px-6 py-6">
-        {/* Search Bar */}
+        {}
         <div className="relative w-full sm:w-1/3">
           <input
             type="text"
@@ -80,7 +80,7 @@ const Projects = () => {
             <FaSearch />
           </span>
         </div>
-        {/* Filter by Category */}
+        {}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           <span className="text-base font-semibold text-green-700">
             Filter:
@@ -97,7 +97,7 @@ const Projects = () => {
           </select>
         </div>
 
-        {/* Sort by Option */}
+        {}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           <span className="text-base font-semibold text-green-700">Sort:</span>
           <select
@@ -112,7 +112,7 @@ const Projects = () => {
         </div>
       </div>
 
-      {/* Project Grid or Placeholder */}
+      {}
       <div className="flex items-center justify-center min-h-[300px] bg-white/80 rounded-2xl shadow-lg border border-green-100 mt-8">
         <h1 className="text-2xl font-bold text-green-700">
           🚧 Projects Page in Development 🚧

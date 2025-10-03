@@ -54,7 +54,6 @@ const EditFreelancerProfile = () => {
 
   const token = localStorage.getItem("token");
 
-  // Redirect if not authenticated or not freelancer
   useEffect(() => {
     if (!isAuthenticated || user?.role !== "freelancer") {
       navigate("/login");
@@ -62,7 +61,6 @@ const EditFreelancerProfile = () => {
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Fetch freelancer profile on component mount
   useEffect(() => {
     if (isAuthenticated && user?.role === "freelancer") {
       fetchFreelancerProfile();
@@ -72,7 +70,6 @@ const EditFreelancerProfile = () => {
   const fetchFreelancerProfile = async () => {
     try {
       setInitialLoading(true);
-      console.log("🔄 Fetching freelancer profile...");
 
       const response = await axios.get(
         `http://localhost:8000/api/freelancers/profile`,
@@ -81,9 +78,6 @@ const EditFreelancerProfile = () => {
         }
       );
 
-      console.log("✅ Freelancer profile fetched:", response.data);
-
-      // Map the response data to our form structure
       const profileData = response.data.freelancer || response.data;
       setFreelancer({
         fullName: profileData.fullName || profileData.name || "",
@@ -101,7 +95,6 @@ const EditFreelancerProfile = () => {
         resumeOriginalName: profileData.resumeOriginalName || "",
       });
     } catch (err) {
-      console.error("❌ Error fetching freelancer profile:", err);
       const errorMessage =
         err.response?.data?.message || "Failed to load profile data";
       alert(errorMessage);
@@ -130,13 +123,11 @@ const EditFreelancerProfile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       alert("File size must be less than 5MB");
       return;
     }
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
@@ -147,8 +138,6 @@ const EditFreelancerProfile = () => {
 
     setUploadingAvatar(true);
     try {
-      console.log("🔄 Uploading profile picture...");
-
       const response = await axios.put(
         `http://localhost:8000/api/freelancers/upload/profile-picture`,
         formData,
@@ -160,15 +149,12 @@ const EditFreelancerProfile = () => {
         }
       );
 
-      console.log("✅ Profile picture uploaded:", response.data);
-
       setFreelancer((prev) => ({
         ...prev,
         profilePicture: response.data.profilePicture || response.data.avatar,
       }));
       alert("Profile picture updated successfully!");
     } catch (err) {
-      console.error("❌ Profile picture upload failed:", err);
       const errorMessage =
         err.response?.data?.message || "Failed to upload profile picture";
       alert(errorMessage);
@@ -181,13 +167,11 @@ const EditFreelancerProfile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file size (10MB max for resumes)
     if (file.size > 10 * 1024 * 1024) {
       alert("Resume file size must be less than 10MB");
       return;
     }
 
-    // Validate file type (PDF, DOC, DOCX)
     const allowedTypes = [
       "application/pdf",
       "application/msword",
@@ -204,8 +188,6 @@ const EditFreelancerProfile = () => {
 
     setUploadingResume(true);
     try {
-      console.log("🔄 Uploading resume...");
-
       const response = await axios.put(
         `http://localhost:8000/api/freelancers/upload/resume`,
         formData,
@@ -217,8 +199,6 @@ const EditFreelancerProfile = () => {
         }
       );
 
-      console.log("✅ Resume uploaded:", response.data);
-
       setFreelancer((prev) => ({
         ...prev,
         resume: response.data.resume,
@@ -226,7 +206,6 @@ const EditFreelancerProfile = () => {
       }));
       alert("Resume uploaded successfully!");
     } catch (err) {
-      console.error("❌ Resume upload failed:", err);
       const errorMessage =
         err.response?.data?.message || "Failed to upload resume";
       alert(errorMessage);
@@ -241,16 +220,12 @@ const EditFreelancerProfile = () => {
     }
 
     try {
-      console.log("🔄 Deleting resume...");
-
       await axios.delete(
         `http://localhost:8000/api/freelancers/upload/resume`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      console.log("✅ Resume deleted");
 
       setFreelancer((prev) => ({
         ...prev,
@@ -259,14 +234,12 @@ const EditFreelancerProfile = () => {
       }));
       alert("Resume deleted successfully!");
     } catch (err) {
-      console.error("❌ Resume deletion failed:", err);
       const errorMessage =
         err.response?.data?.message || "Failed to delete resume";
       alert(errorMessage);
     }
   };
 
-  // Primary download resume function
   const downloadResume = async () => {
     if (!freelancer.resume) {
       alert("No resume available to download");
@@ -275,8 +248,6 @@ const EditFreelancerProfile = () => {
 
     setDownloadingResume(true);
     try {
-      console.log("🔄 Downloading resume...");
-
       const response = await axios({
         method: "GET",
         url: `http://localhost:8000/api/freelancers/download/resume`,
@@ -293,23 +264,19 @@ const EditFreelancerProfile = () => {
         contentLength: response.headers["content-length"],
       });
 
-      // Create blob link to download
       const blob = new Blob([response.data], {
         type: response.headers["content-type"] || "application/octet-stream",
       });
 
-      // Check if blob has content
       if (blob.size === 0) {
         throw new Error("Downloaded file is empty");
       }
 
       const url = window.URL.createObjectURL(blob);
 
-      // Create temporary link and trigger download
       const link = document.createElement("a");
       link.href = url;
 
-      // Get filename from response headers or use default
       const contentDisposition = response.headers["content-disposition"];
       let filename = freelancer.resumeOriginalName || "resume.pdf";
 
@@ -327,18 +294,13 @@ const EditFreelancerProfile = () => {
       document.body.appendChild(link);
       link.click();
 
-      // Cleanup
       setTimeout(() => {
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
       }, 100);
 
-      console.log("✅ Resume downloaded successfully:", filename);
       alert(`Resume "${filename}" has been downloaded successfully!`);
     } catch (err) {
-      console.error("❌ Resume download failed:", err);
-
-      // More specific error handling
       if (err.code === "ECONNABORTED") {
         alert("Download timed out. Please try again.");
       } else if (err.response?.status === 404) {
@@ -346,8 +308,6 @@ const EditFreelancerProfile = () => {
       } else if (err.response?.status === 401) {
         alert("Authentication failed. Please login again.");
       } else {
-        // Fallback: try direct URL download
-        console.log("🔄 Trying fallback download method...");
         downloadResumeAlternative();
       }
     } finally {
@@ -355,7 +315,6 @@ const EditFreelancerProfile = () => {
     }
   };
 
-  // FIXED: Add the missing downloadResumeAlternative function
   const downloadResumeAlternative = () => {
     if (!freelancer.resume) {
       alert("No resume available to download");
@@ -363,33 +322,29 @@ const EditFreelancerProfile = () => {
     }
 
     try {
-      console.log("🔄 Using alternative download method...");
-      
-      // Create a link element and trigger download
       const link = document.createElement("a");
       link.href = freelancer.resume;
       link.download = freelancer.resumeOriginalName || "resume.pdf";
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      
-      // Add to document temporarily
+
       document.body.appendChild(link);
       link.click();
-      
-      // Cleanup
+
       setTimeout(() => {
         document.body.removeChild(link);
       }, 100);
-      
-      console.log("✅ Alternative download initiated");
-      alert("Resume opened in new tab. You can download it from there if it didn't download automatically.");
+
+      alert(
+        "Resume opened in new tab. You can download it from there if it didn't download automatically."
+      );
     } catch (error) {
-      console.error("❌ Alternative download also failed:", error);
-      alert("Failed to download resume. Please try refreshing the page or contact support.");
+      alert(
+        "Failed to download resume. Please try refreshing the page or contact support."
+      );
     }
   };
 
-  // View resume in new tab function
   const viewResumeInNewTab = () => {
     if (!freelancer.resume) {
       alert("No resume available to view");
@@ -397,10 +352,8 @@ const EditFreelancerProfile = () => {
     }
 
     try {
-      window.open(freelancer.resume, '_blank', 'noopener,noreferrer');
-      console.log("✅ Resume opened in new tab");
+      window.open(freelancer.resume, "_blank", "noopener,noreferrer");
     } catch (error) {
-      console.error("❌ Failed to open resume:", error);
       alert("Failed to open resume. Please try again.");
     }
   };
@@ -459,8 +412,6 @@ const EditFreelancerProfile = () => {
 
     setLoading(true);
     try {
-      console.log("🔄 Updating freelancer profile...");
-
       const updateData = {
         fullName: freelancer.fullName,
         email: freelancer.email,
@@ -482,11 +433,9 @@ const EditFreelancerProfile = () => {
         }
       );
 
-      console.log("✅ Profile updated successfully:", response.data);
       alert("Profile updated successfully!");
       navigate(-1); // Go back to previous page
     } catch (err) {
-      console.error("❌ Profile update failed:", err);
       const errorMessage =
         err.response?.data?.message ||
         "Failed to update profile. Please try again.";
@@ -509,7 +458,7 @@ const EditFreelancerProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 p-6 pt-20">
-      {/* Animated Background */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -517,9 +466,9 @@ const EditFreelancerProfile = () => {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto">
-        {/* Dark Emerald Container */}
+        {}
         <div className="bg-slate-800/60 backdrop-blur-2xl rounded-3xl shadow-2xl border border-emerald-500/20 p-8 hover:shadow-emerald-500/20 transition-all duration-300">
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => navigate(-1)}
@@ -553,7 +502,7 @@ const EditFreelancerProfile = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Profile Picture Section */}
+            {}
             <div className="bg-slate-700/50 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
               <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
                 <FaUserCircle className="text-emerald-400" />
@@ -606,7 +555,7 @@ const EditFreelancerProfile = () => {
               </div>
             </div>
 
-            {/* Resume Section - FIXED */}
+            {}
             <div className="bg-slate-700/50 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
               <h3 className="text-xl font-semibold text-gray-200 mb-4 flex items-center gap-2">
                 <FaFileAlt className="text-emerald-400" />
@@ -631,7 +580,7 @@ const EditFreelancerProfile = () => {
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      {/* Primary Download Button */}
+                      {}
                       <button
                         type="button"
                         onClick={downloadResume}
@@ -652,7 +601,7 @@ const EditFreelancerProfile = () => {
                         )}
                       </button>
 
-                      {/* View Button - FIXED */}
+                      {}
                       <button
                         type="button"
                         onClick={viewResumeInNewTab}
@@ -675,7 +624,7 @@ const EditFreelancerProfile = () => {
                     </div>
                   </div>
 
-                  {/* Resume Info */}
+                  {}
                   <div className="mt-3 p-3 bg-slate-700/30 rounded-lg border border-emerald-500/10">
                     <p className="text-xs text-gray-400">
                       💡 <strong>Download Tips:</strong>
@@ -728,7 +677,7 @@ const EditFreelancerProfile = () => {
               </p>
             </div>
 
-            {/* Personal Information */}
+            {}
             <div className="bg-slate-700/50 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
               <h3 className="text-xl font-semibold text-gray-200 mb-6 flex items-center gap-2">
                 <FaEdit className="text-emerald-400" />
@@ -825,7 +774,7 @@ const EditFreelancerProfile = () => {
                 </div>
               </div>
 
-              {/* Location */}
+              {}
               <div className="mt-6">
                 <label className="block text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
                   <FaMapMarkerAlt />
@@ -843,14 +792,14 @@ const EditFreelancerProfile = () => {
               </div>
             </div>
 
-            {/* Professional Information */}
+            {}
             <div className="bg-slate-700/50 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
               <h3 className="text-xl font-semibold text-gray-200 mb-6 flex items-center gap-2">
                 <FaBriefcase className="text-emerald-400" />
                 Professional Information
               </h3>
 
-              {/* Bio Section */}
+              {}
               <div className="mb-6">
                 <label className="block text-sm font-semibold text-emerald-400 mb-3">
                   Professional Summary
@@ -870,7 +819,7 @@ const EditFreelancerProfile = () => {
                 </p>
               </div>
 
-              {/* Skills */}
+              {}
               <div>
                 <label className="block text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
                   <FaCode />
@@ -887,7 +836,7 @@ const EditFreelancerProfile = () => {
                   ⚡ Separate skills with commas. Add both technical and soft
                   skills.
                 </p>
-                {/* Skills Preview */}
+                {}
                 {freelancer.skills && freelancer.skills.length > 0 && (
                   <div className="mt-4">
                     <p className="text-sm text-gray-400 mb-2">
@@ -913,7 +862,7 @@ const EditFreelancerProfile = () => {
               </div>
             </div>
 
-            {/* Social Links & Portfolio */}
+            {}
             <div className="bg-slate-700/50 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
               <h3 className="text-xl font-semibold text-gray-200 mb-6 flex items-center gap-2">
                 <FaGlobe className="text-emerald-400" />
@@ -986,7 +935,7 @@ const EditFreelancerProfile = () => {
               </div>
             </div>
 
-            {/* Submit Buttons */}
+            {}
             <div className="flex justify-between pt-8 border-t border-emerald-500/20">
               <button
                 type="button"
@@ -1015,7 +964,7 @@ const EditFreelancerProfile = () => {
             </div>
           </form>
 
-          {/* Help Section */}
+          {}
           <div className="mt-8 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 backdrop-blur-2xl p-6 rounded-2xl border border-emerald-500/20">
             <h3 className="font-bold text-lg text-emerald-400 mb-3">
               💡 Profile Tips

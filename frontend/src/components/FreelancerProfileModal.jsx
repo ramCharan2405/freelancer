@@ -29,7 +29,6 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen && freelancerId) {
-      console.log("🔍 Modal opened for freelancer ID:", freelancerId);
       fetchFreelancerProfile();
       document.body.style.overflow = "hidden";
     } else if (!isOpen) {
@@ -48,8 +47,6 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
     setError("");
 
     try {
-      console.log("📡 Fetching freelancer profile for ID:", freelancerId);
-
       const response = await axios.get(
         `http://localhost:8000/api/freelancers/${freelancerId}`,
         {
@@ -57,10 +54,8 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
         }
       );
 
-      console.log("✅ Freelancer profile fetched:", response.data);
       setFreelancer(response.data);
     } catch (err) {
-      console.error("❌ Error fetching freelancer profile:", err);
       let errorMessage = "Failed to load freelancer profile";
 
       if (err.response?.status === 404) {
@@ -86,9 +81,6 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
     setResumeLoading(true);
 
     try {
-      console.log("📄 Opening resume for freelancer:", freelancer.fullName);
-
-      // Get resume info first
       const response = await axios.get(
         `http://localhost:8000/api/freelancers/resume/${freelancerId}`,
         {
@@ -96,10 +88,8 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
         }
       );
 
-      // Open Cloudinary URL directly in new tab
       window.open(response.data.resumeUrl, "_blank");
     } catch (error) {
-      console.error("❌ Error opening resume:", error);
       alert("Failed to open resume. Please try again.");
     } finally {
       setResumeLoading(false);
@@ -115,9 +105,6 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
     setResumeLoading(true);
 
     try {
-      console.log("⬇️ Downloading resume for freelancer:", freelancer.fullName);
-
-      // Get resume info
       const response = await axios.get(
         `http://localhost:8000/api/freelancers/resume/${freelancerId}`,
         {
@@ -125,7 +112,6 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
         }
       );
 
-      // Create a temporary link to download from Cloudinary URL
       const link = document.createElement("a");
       link.href = response.data.resumeUrl;
       link.setAttribute("download", response.data.originalName || "resume.pdf");
@@ -134,7 +120,6 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
       link.click();
       link.remove();
     } catch (error) {
-      console.error("❌ Error downloading resume:", error);
       alert("Failed to download resume. Please try again.");
     } finally {
       setResumeLoading(false);
@@ -225,7 +210,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
       className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-fadeIn bg-slate-900/80 backdrop-blur-2xl"
       onClick={handleBackdropClick}
     >
-      {/* Animated Background */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -235,11 +220,11 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
         className="relative w-full max-w-5xl max-h-[95vh] animate-scaleIn z-10"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Dark Emerald Modal Container */}
+        {}
         <div className="bg-slate-800/95 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl shadow-2xl overflow-hidden">
-          {/* Header with Dark Emerald Theme */}
+          {}
           <div className="relative p-6 bg-gradient-to-r from-emerald-500/90 to-teal-500/90 backdrop-blur-2xl text-white overflow-hidden border-b border-emerald-500/20">
-            {/* Background Pattern */}
+            {}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-400/20 to-teal-600/20"></div>
             </div>
@@ -248,7 +233,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log("Close button clicked");
+
                 onClose();
               }}
               className="absolute top-4 right-4 p-3 rounded-2xl bg-slate-800/40 hover:bg-slate-700/60 transition-all duration-300 backdrop-blur-xl group z-50 border border-emerald-500/20 hover:border-emerald-400/40"
@@ -270,7 +255,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Content with Dark Theme */}
+          {}
           <div className="overflow-y-auto max-h-[calc(95vh-120px)] bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
@@ -311,7 +296,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
               </div>
             ) : freelancer ? (
               <div className="p-8 space-y-8">
-                {/* Basic Info Section */}
+                {}
                 <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
                   <div className="flex items-start space-x-6">
                     <div className="flex-shrink-0">
@@ -370,7 +355,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                         </div>
                       </div>
 
-                      {/* Additional Info */}
+                      {}
                       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
                         {freelancer.gender && (
                           <div>
@@ -409,7 +394,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                   </div>
                 </div>
 
-                {/* Resume Section */}
+                {}
                 {freelancer.resume?.url ? (
                   <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
                     <h4 className="text-xl font-semibold text-gray-200 mb-4 flex items-center">
@@ -477,7 +462,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Professional Summary */}
+                {}
                 {freelancer.bio && (
                   <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
                     <h4 className="text-xl font-semibold text-gray-200 mb-3">
@@ -489,7 +474,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Skills Section */}
+                {}
                 {freelancer.skills &&
                   safeArray(freelancer.skills).length > 0 && (
                     <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
@@ -511,7 +496,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                     </div>
                   )}
 
-                {/* Work Experience Section */}
+                {}
                 {freelancer.workExperience &&
                   safeArray(freelancer.workExperience).length > 0 && (
                     <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
@@ -563,7 +548,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                     </div>
                   )}
 
-                {/* Education Section */}
+                {}
                 {freelancer.education &&
                   safeArray(freelancer.education).length > 0 && (
                     <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
@@ -608,7 +593,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                     </div>
                   )}
 
-                {/* Portfolio/Projects Section */}
+                {}
                 {freelancer.portfolio &&
                   safeArray(freelancer.portfolio).length > 0 && (
                     <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
@@ -665,7 +650,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                     </div>
                   )}
 
-                {/* Rating Section */}
+                {}
                 {freelancer.rating && (
                   <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
                     <h4 className="text-xl font-semibold text-gray-200 mb-3 flex items-center">
@@ -697,7 +682,7 @@ const FreelancerProfileModal = ({ freelancerId, isOpen, onClose }) => {
                   </div>
                 )}
 
-                {/* Contact Actions */}
+                {}
                 <div className="flex justify-center space-x-6 pt-8">
                   <button
                     onClick={() => {
@@ -736,7 +721,7 @@ Best regards`);
         </div>
       </div>
 
-      {/* Custom Styles */}
+      {}
       <style jsx>{`
         @keyframes fadeIn {
           from {

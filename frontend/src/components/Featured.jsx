@@ -71,7 +71,7 @@ const Featured = () => {
 
   return (
     <section className="relative py-24 bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 overflow-hidden">
-      {/* Animated Background Elements */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -79,7 +79,7 @@ const Featured = () => {
       </div>
 
       <div className="relative z-10 container mx-auto px-6">
-        {/* Header */}
+        {}
         <div className="text-center mb-20">
           <h2 className="text-5xl font-bold text-gray-200 mb-6">
             Popular Categories
@@ -90,7 +90,7 @@ const Featured = () => {
           </p>
         </div>
 
-        {/* Categories Grid */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {categories.map((category, index) => {
             const IconComponent = iconMap[category.icon];
@@ -126,7 +126,7 @@ const Featured = () => {
           })}
         </div>
 
-        {/* Bottom CTA */}
+        {}
         <div className="text-center mt-20">
           <button className="group bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-lime-400 text-white px-10 py-5 rounded-2xl font-semibold text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/40 transform hover:scale-105 border border-emerald-500/30">
             <span className="flex items-center gap-3">

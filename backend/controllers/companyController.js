@@ -4,8 +4,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cloudinary = require('../config/cloudinary');
 const multer = require('multer');
+const mongoose = require('mongoose'); // ADD THIS LINE
 
-// Configure multer for file uploads
+
 const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
@@ -21,10 +22,14 @@ const upload = multer({
   },
 });
 
-// Register company
+
 const registerCompany = async (req, res) => {
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    console.log('🔄 Company registration attempt:', req.body);
+
 
     const {
       companyName,
@@ -39,8 +44,10 @@ const registerCompany = async (req, res) => {
       description
     } = req.body;
 
-    // Validation
+
     if (!companyName && !organization) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({
         success: false,
         message: 'Company name is required'
@@ -48,6 +55,8 @@ const registerCompany = async (req, res) => {
     }
 
     if (!email || !password) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({
         success: false,
         message: 'Email and password are required'
@@ -55,6 +64,8 @@ const registerCompany = async (req, res) => {
     }
 
     if (password !== confirmPassword) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({
         success: false,
         message: 'Passwords do not match'
@@ -62,29 +73,33 @@ const registerCompany = async (req, res) => {
     }
 
     if (password.length < 6) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({
         success: false,
         message: 'Password must be at least 6 characters long'
       });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
+
+    const existingUser = await User.findOne({ email }).session(session);
     if (existingUser) {
+      await session.abortTransaction();
+      session.endSession();
       return res.status(400).json({
         success: false,
         message: 'User with this email already exists'
       });
     }
 
-    // Hash password
+
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Use companyName or organization as the name
+
     const finalCompanyName = companyName || organization;
 
-    // Create user
+
     const newUser = new User({
       fullName: finalCompanyName,
       email,
@@ -92,9 +107,10 @@ const registerCompany = async (req, res) => {
       role: 'company'
     });
 
-    const savedUser = await newUser.save();
+    const savedUser = await newUser.save({ session });
 
-    // Create company profile
+
+
     const newCompany = new Company({
       user: savedUser._id,
       companyName: finalCompanyName,
@@ -109,9 +125,14 @@ const registerCompany = async (req, res) => {
       founded: new Date().getFullYear()
     });
 
-    const savedCompany = await newCompany.save();
+    const savedCompany = await newCompany.save({ session });
 
-    // Generate JWT token
+
+
+    await session.commitTransaction();
+    session.endSession();
+
+
     const token = jwt.sign(
       {
         userId: savedUser._id,
@@ -122,7 +143,7 @@ const registerCompany = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    console.log('✅ Company registered successfully:', finalCompanyName);
+
 
     res.status(201).json({
       success: true,
@@ -149,7 +170,11 @@ const registerCompany = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error registering company:', error);
+
+    await session.abortTransaction();
+    session.endSession();
+
+
 
     if (error.name === 'ValidationError') {
       return res.status(400).json({
@@ -174,14 +199,14 @@ const registerCompany = async (req, res) => {
   }
 };
 
-// Login company
+
 const loginCompany = async (req, res) => {
   try {
-    console.log('🔄 Company login attempt:', req.body.email);
+
 
     const { email, password } = req.body;
 
-    // Validation
+
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -189,7 +214,7 @@ const loginCompany = async (req, res) => {
       });
     }
 
-    // Find user by email and role
+
     const user = await User.findOne({ email, role: 'company' });
     if (!user) {
       return res.status(401).json({
@@ -198,7 +223,7 @@ const loginCompany = async (req, res) => {
       });
     }
 
-    // Check password
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -207,10 +232,10 @@ const loginCompany = async (req, res) => {
       });
     }
 
-    // Find company profile
+
     const company = await Company.findOne({ user: user._id });
 
-    // Generate JWT token
+
     const token = jwt.sign(
       {
         userId: user._id,
@@ -221,7 +246,7 @@ const loginCompany = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    console.log('✅ Company login successful:', user.fullName);
+
 
     res.json({
       success: true,
@@ -248,7 +273,7 @@ const loginCompany = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error during company login:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error during login',
@@ -257,16 +282,16 @@ const loginCompany = async (req, res) => {
   }
 };
 
-// Get company profile
+
 const getCompanyProfile = async (req, res) => {
   try {
-    console.log('🔄 Fetching company profile for user:', req.user.userId);
+
 
     const company = await Company.findOne({ user: req.user.userId })
       .populate('user', 'email fullName');
 
     if (!company) {
-      console.log('❌ Company profile not found, creating new one...');
+
 
       const user = await User.findById(req.user.userId);
       if (!user) {
@@ -289,11 +314,11 @@ const getCompanyProfile = async (req, res) => {
       });
 
       await newCompany.save();
-      console.log('✅ Created new company profile');
+
 
       return res.json({
         success: true,
-        // FIXED: Map to expected field names for EditCompanyProfile
+
         organization: newCompany.companyName,
         email: user.email,
         contact: newCompany.contact,
@@ -307,11 +332,11 @@ const getCompanyProfile = async (req, res) => {
       });
     }
 
-    console.log('✅ Company profile found:', company.companyName);
+
 
     res.json({
       success: true,
-      // FIXED: Map to expected field names for EditCompanyProfile
+
       organization: company.companyName,
       email: company.user?.email,
       contact: company.contact,
@@ -327,7 +352,7 @@ const getCompanyProfile = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching company profile:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error fetching profile',
@@ -336,11 +361,11 @@ const getCompanyProfile = async (req, res) => {
   }
 };
 
-// Update company profile
+
 const updateCompanyProfile = async (req, res) => {
   try {
-    console.log('🔄 Updating company profile for user:', req.user.userId);
-    console.log('📥 Update data received:', req.body);
+
+
 
     const {
       organization,
@@ -364,7 +389,7 @@ const updateCompanyProfile = async (req, res) => {
       });
     }
 
-    // FIXED: Map frontend field names to backend field names
+
     const updateData = {
       companyName: organization || company.companyName,
       organization: organization || company.organization,
@@ -384,7 +409,7 @@ const updateCompanyProfile = async (req, res) => {
       { new: true, runValidators: true, upsert: true }
     );
 
-    // Update user email if provided
+
     if (email) {
       await User.findByIdAndUpdate(req.user.userId, {
         email,
@@ -392,9 +417,9 @@ const updateCompanyProfile = async (req, res) => {
       });
     }
 
-    console.log('✅ Company profile updated successfully');
 
-    // FIXED: Return data in expected format
+
+
     res.json({
       success: true,
       message: 'Profile updated successfully',
@@ -411,7 +436,7 @@ const updateCompanyProfile = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error updating company profile:', error);
+
 
     if (error.name === 'ValidationError') {
       return res.status(400).json({
@@ -429,10 +454,10 @@ const updateCompanyProfile = async (req, res) => {
   }
 };
 
-// Upload company logo
+
 const uploadLogo = async (req, res) => {
   try {
-    console.log('🔄 Uploading company logo for user:', req.user.userId);
+
 
     if (!req.file) {
       return res.status(400).json({
@@ -441,7 +466,7 @@ const uploadLogo = async (req, res) => {
       });
     }
 
-    // Upload to Cloudinary
+
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -459,14 +484,14 @@ const uploadLogo = async (req, res) => {
       uploadStream.end(req.file.buffer);
     });
 
-    // Update company profile with new logo URL
+
     const company = await Company.findOneAndUpdate(
       { user: req.user.userId },
       { profilePicture: result.secure_url },
       { new: true, upsert: true }
     );
 
-    console.log('✅ Logo uploaded successfully:', result.secure_url);
+
 
     res.json({
       success: true,
@@ -476,7 +501,7 @@ const uploadLogo = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error uploading logo:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to upload logo',
@@ -485,7 +510,7 @@ const uploadLogo = async (req, res) => {
   }
 };
 
-// Get all companies
+
 const getAllCompanies = async (req, res) => {
   try {
     const companies = await Company.find()
@@ -499,7 +524,7 @@ const getAllCompanies = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching companies:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error fetching companies',
@@ -508,7 +533,7 @@ const getAllCompanies = async (req, res) => {
   }
 };
 
-// Get company by ID
+
 const getCompanyById = async (req, res) => {
   try {
     const company = await Company.findById(req.params.id)
@@ -527,7 +552,7 @@ const getCompanyById = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching company:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error fetching company',

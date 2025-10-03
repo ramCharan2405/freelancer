@@ -1,5 +1,5 @@
 // src/context/AuthContext.js
-import React, { createContext, useContext, useReducer, useEffect } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 // Create the AuthContext
 const AuthContext = createContext();
@@ -13,174 +13,205 @@ export const useAuth = () => {
   return context;
 };
 
-// Initial state
-const initialState = {
-  user: null,
-  isAuthenticated: false,
-  loading: true,
-  token: null,
-};
-
-// Action types
-const AUTH_ACTIONS = {
-  LOGIN_SUCCESS: "LOGIN_SUCCESS",
-  LOGOUT: "LOGOUT",
-  SET_LOADING: "SET_LOADING",
-  SET_USER: "SET_USER",
-  UPDATE_USER: "UPDATE_USER",
-};
-
-// Reducer function
-const authReducer = (state, action) => {
-  switch (action.type) {
-    case AUTH_ACTIONS.LOGIN_SUCCESS:
-      return {
-        ...state,
-        user: action.payload.user,
-        token: action.payload.token,
-        isAuthenticated: true,
-        loading: false,
-      };
-    case AUTH_ACTIONS.LOGOUT:
-      return {
-        ...state,
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        loading: false,
-      };
-    case AUTH_ACTIONS.SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload,
-      };
-    case AUTH_ACTIONS.SET_USER:
-      return {
-        ...state,
-        user: action.payload.user,
-        token: action.payload.token,
-        isAuthenticated: !!action.payload.user,
-        loading: false,
-      };
-    case AUTH_ACTIONS.UPDATE_USER:
-      return {
-        ...state,
-        user: { ...state.user, ...action.payload },
-      };
-    default:
-      return state;
-  }
-};
-
 // AuthProvider component
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Check for existing token on app load
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
-
-    if (token && userData) {
+    // Check for existing auth on mount
+    const initializeAuth = () => {
       try {
-        const user = JSON.parse(userData);
-        dispatch({
-          type: AUTH_ACTIONS.SET_USER,
-          payload: { user, token },
+        const token = localStorage.getItem("token");
+        const storedUser = localStorage.getItem("user");
+        const userId = localStorage.getItem("userId");
+        const userRole = localStorage.getItem("userRole");
+
+        console.log("🔍 AuthContext Init:", {
+          hasToken: !!token,
+          hasUser: !!storedUser,
+          userId,
+          userRole,
+          timestamp: new Date().toISOString(),
         });
+
+        if (token && storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+
+            // Ensure role is set
+            if (!parsedUser.role && userRole) {
+              parsedUser.role = userRole;
+            }
+
+            // Ensure id is set
+            if (!parsedUser.id && userId) {
+              parsedUser.id = userId;
+            }
+
+            console.log("✅ Restoring auth state:", {
+              userId: parsedUser.id,
+              email: parsedUser.email,
+              role: parsedUser.role,
+              name: parsedUser.fullName || parsedUser.companyName,
+            });
+
+            setUser(parsedUser);
+            setIsAuthenticated(true);
+          } catch (parseError) {
+            console.error("❌ Error parsing stored user:", parseError);
+            // Clear corrupted data
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("userRole");
+          }
+        } else {
+          console.log("ℹ️ No stored auth found");
+        }
       } catch (error) {
-        console.error("Failed to parse user data:", error);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+        console.error("Error initializing auth:", error);
+      } finally {
+        setLoading(false);
+        console.log(" Auth initialization complete");
       }
-    } else {
-      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
-    }
+    };
+
+    initializeAuth();
   }, []);
 
   // Login function
   const login = (userData, token) => {
     try {
-      // Store in localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      // Update state
-      dispatch({
-        type: AUTH_ACTIONS.LOGIN_SUCCESS,
-        payload: { user: userData, token },
+      console.log("🔄 Login called with:", {
+        userData: userData ? { ...userData, password: undefined } : null,
+        hasToken: !!token,
       });
 
-      console.log("✅ Login successful in AuthContext:", userData);
+      if (!token) {
+        console.error(" No token provided to login");
+        return false;
+      }
+
+      if (!userData) {
+        console.error(" No user data provided to login");
+        return false;
+      }
+
+      // Store token
+      localStorage.setItem("token", token);
+
+      // Store user ID
+      const userId = userData.id || userData._id;
+      if (userId) {
+        localStorage.setItem("userId", userId);
+        console.log(" Stored userId:", userId);
+      } else {
+        console.warn(" No userId found in userData");
+      }
+
+      // Store user role
+      const userRole = userData.role;
+      if (userRole) {
+        localStorage.setItem("userRole", userRole);
+        console.log("✅ Stored userRole:", userRole);
+      } else {
+        console.warn(" No role found in userData");
+      }
+
+      // Ensure userData has both id and role
+      const normalizedUser = {
+        ...userData,
+        id: userId,
+        role: userRole,
+      };
+
+      // Store full user object
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+
+      // Update state
+      setUser(normalizedUser);
+      setIsAuthenticated(true);
+
+      console.log("✅ Login successful. Final state:", {
+        userId: localStorage.getItem("userId"),
+        userRole: localStorage.getItem("userRole"),
+        hasToken: !!localStorage.getItem("token"),
+        hasUser: !!localStorage.getItem("user"),
+        authState: { isAuthenticated: true, user: normalizedUser },
+      });
+
       return true;
     } catch (error) {
-      console.error("❌ Login failed in AuthContext:", error);
+      console.error(" Login error:", error);
       return false;
     }
   };
 
   // Logout function
   const logout = () => {
-    try {
-      // Remove from localStorage
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("role");
+    console.log("🔄 Logging out...");
 
-      // Update state
-      dispatch({ type: AUTH_ACTIONS.LOGOUT });
+    // Clear all auth data
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userRole");
 
-      console.log("✅ Logout successful");
-      return true;
-    } catch (error) {
-      console.error("❌ Logout failed:", error);
-      return false;
-    }
+    setUser(null);
+    setIsAuthenticated(false);
+
+    console.log("✅ Logout complete");
   };
 
   // Update user function
   const updateUser = (updatedData) => {
-    try {
-      const updatedUser = { ...state.user, ...updatedData };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+    console.log("🔄 Updating user data:", updatedData);
 
-      dispatch({
-        type: AUTH_ACTIONS.UPDATE_USER,
-        payload: updatedData,
-      });
+    const updatedUser = { ...user, ...updatedData };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      return true;
-    } catch (error) {
-      console.error("❌ Update user failed:", error);
-      return false;
+    // Update role if changed
+    if (updatedData.role) {
+      localStorage.setItem("userRole", updatedData.role);
     }
-  };
 
-  // Get token function
-  const getToken = () => {
-    return state.token || localStorage.getItem("token");
-  };
+    // Update userId if changed
+    if (updatedData.id || updatedData._id) {
+      localStorage.setItem("userId", updatedData.id || updatedData._id);
+    }
 
-  // Check if user has specific role
-  const hasRole = (role) => {
-    return state.user?.role === role;
+    console.log("✅ User data updated");
   };
 
   const value = {
     // State
-    user: state.user,
-    isAuthenticated: state.isAuthenticated,
-    loading: state.loading,
-    token: state.token,
+    user,
+    isAuthenticated,
+    loading,
 
     // Functions
     login,
     logout,
     updateUser,
-    getToken,
-    hasRole,
   };
+
+  // Show loading state while initializing
+  if (loading) {
+    return (
+      <AuthContext.Provider value={value}>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+            <p className="text-gray-400 text-lg">Loading...</p>
+          </div>
+        </div>
+      </AuthContext.Provider>
+    );
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

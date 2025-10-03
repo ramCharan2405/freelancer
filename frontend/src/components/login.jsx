@@ -20,7 +20,7 @@ const Login = ({ isOpen, onClose, userType }) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Clear error when user starts typing
+
     if (error) setError("");
   };
 
@@ -53,10 +53,8 @@ const Login = ({ isOpen, onClose, userType }) => {
       });
 
       const data = await response.json();
-      console.log("📥 Login response:", data);
 
       if (response.ok && data.token) {
-        // Extract user data from response
         const userData = {
           id: data.user.id,
           email: data.user.email,
@@ -68,21 +66,13 @@ const Login = ({ isOpen, onClose, userType }) => {
           ...data.user,
         };
 
-        console.log("✅ Processed user data:", userData);
-
-        // Login through AuthContext
         const loginSuccess = login(userData, data.token);
 
         if (loginSuccess) {
-          console.log("✅ Login successful, redirecting...");
-
-          // Close modal
           onClose();
 
-          // Reset form
           setFormData({ email: "", password: "" });
 
-          // Redirect based on user role
           if (userData.role === "company") {
             navigate("/company-dashboard");
           } else if (userData.role === "freelancer") {
@@ -94,7 +84,6 @@ const Login = ({ isOpen, onClose, userType }) => {
           setError("Failed to process login. Please try again.");
         }
       } else {
-        console.log("❌ Login failed:", data);
         setError(
           data.error ||
             data.message ||
@@ -102,7 +91,6 @@ const Login = ({ isOpen, onClose, userType }) => {
         );
       }
     } catch (error) {
-      console.error("❌ Login error:", error);
       setError("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
@@ -125,7 +113,7 @@ const Login = ({ isOpen, onClose, userType }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800">
             Sign in as {userType}
@@ -139,16 +127,16 @@ const Login = ({ isOpen, onClose, userType }) => {
           </button>
         </div>
 
-        {/* Form */}
+        {}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Error Message */}
+          {}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
-          {/* Email Field */}
+          {}
           <div>
             <label
               htmlFor="email"
@@ -170,7 +158,7 @@ const Login = ({ isOpen, onClose, userType }) => {
             />
           </div>
 
-          {/* Password Field */}
+          {}
           <div>
             <label
               htmlFor="password"
@@ -202,7 +190,7 @@ const Login = ({ isOpen, onClose, userType }) => {
             </div>
           </div>
 
-          {/* Submit Button */}
+          {}
           <button
             type="submit"
             disabled={loading}
@@ -218,7 +206,7 @@ const Login = ({ isOpen, onClose, userType }) => {
             )}
           </button>
 
-          {/* Additional Links */}
+          {}
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}

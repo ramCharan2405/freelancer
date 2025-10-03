@@ -26,7 +26,6 @@ const Hero = () => {
   const userRole = user?.role || "";
   const userName = user?.fullName || user?.companyName || "";
 
-  // Handle login modal
   const handleLoginClick = (userType) => {
     setLoginUserType(userType);
     setShowLogin(true);
@@ -37,7 +36,6 @@ const Hero = () => {
     setLoginUserType("");
   };
 
-  // Different content based on user status
   const getHeroContent = () => {
     if (!isLoggedIn) {
       return {
@@ -110,7 +108,6 @@ const Hero = () => {
 
   const heroContent = getHeroContent();
 
-  // Quick action cards based on user role
   const getQuickActions = () => {
     if (!isLoggedIn) {
       return [
@@ -170,16 +167,16 @@ const Hero = () => {
 
   return (
     <>
-      {/* Animated Background */}
+      {}
       <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 overflow-hidden">
-        {/* Animated Background Elements */}
+        {}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
 
-        {/* Moving shapes */}
+        {}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-emerald-400/5 to-teal-400/5 rounded-full animate-spin-slow"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-lime-400/5 to-emerald-400/5 rounded-full animate-spin-slow-reverse"></div>
@@ -188,9 +185,9 @@ const Hero = () => {
         <div className="relative z-10 flex items-center min-h-screen">
           <div className="container mx-auto px-6 py-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              {/* Left Content */}
+              {}
               <div className="space-y-8">
-                {/* Greeting for logged-in users */}
+                {}
                 {isLoggedIn && (
                   <div className="bg-slate-800/60 backdrop-blur-2xl rounded-3xl p-6 border border-emerald-500/20 shadow-2xl hover:scale-105 transition-all duration-300 hover:shadow-emerald-500/20">
                     <div className="flex items-center gap-4">
@@ -237,7 +234,7 @@ const Hero = () => {
                   </p>
                 </div>
 
-                {/* CTA Buttons */}
+                {}
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={heroContent.primaryCTA.action}
@@ -254,7 +251,7 @@ const Hero = () => {
                   </button>
                 </div>
 
-                {/* Stats */}
+                {}
                 <div className="grid grid-cols-3 gap-6 pt-8">
                   {heroContent.stats.map((stat, index) => (
                     <div
@@ -272,10 +269,10 @@ const Hero = () => {
                 </div>
               </div>
 
-              {/* Right Content - Quick Actions & Cards */}
+              {}
               <div className="relative">
                 <div className="space-y-6">
-                  {/* Quick Action Cards */}
+                  {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {quickActions.map((action, index) => (
                       <div
@@ -302,7 +299,7 @@ const Hero = () => {
                     ))}
                   </div>
 
-                  {/* Success Stories for logged-in users */}
+                  {}
                   {isLoggedIn && (
                     <div className="bg-slate-800/60 backdrop-blur-2xl p-8 rounded-3xl shadow-2xl border border-emerald-500/20 hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
                       <div className="flex items-center gap-4 mb-4">
@@ -323,7 +320,7 @@ const Hero = () => {
                     </div>
                   )}
 
-                  {/* Feature highlights for non-logged users */}
+                  {}
                   {!isLoggedIn && (
                     <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-2xl p-8 rounded-3xl text-gray-200 border border-emerald-500/20 hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
                       <h3 className="font-bold text-xl mb-4">
@@ -347,7 +344,7 @@ const Hero = () => {
                   )}
                 </div>
 
-                {/* Floating Elements */}
+                {}
                 <div className="absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-r from-emerald-400 to-lime-400 rounded-full shadow-2xl flex items-center justify-center animate-bounce">
                   <FaStar className="text-white text-2xl" />
                 </div>
@@ -361,7 +358,7 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Quick Navigation for logged-in users */}
+            {}
             {isLoggedIn && (
               <div className="mt-20 bg-slate-800/60 backdrop-blur-2xl rounded-3xl p-8 border border-emerald-500/20 shadow-2xl">
                 <h3 className="font-bold text-2xl text-gray-200 mb-6 text-center">
@@ -470,10 +467,10 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Login Modal */}
+      {}
       <Login isOpen={showLogin} onClose={closeLogin} userType={loginUserType} />
 
-      {/* Custom Animations - Fixed jsx attribute warning */}
+      {}
       <style>
         {`
           @keyframes spin-slow {

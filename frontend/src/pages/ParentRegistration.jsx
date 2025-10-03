@@ -17,7 +17,6 @@ import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
 
-// Login Modal Component with matching design
 const LoginModal = ({ isOpen, onClose, userType }) => {
   const [loginData, setLoginData] = useState({
     email: "",
@@ -66,10 +65,8 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
       });
 
       const data = await response.json();
-      console.log("📥 Login response:", data);
 
       if (response.ok && data.success && data.token) {
-        // Extract user data from response
         const userData = {
           id: data.user?.id || data.user?._id,
           email: data.user?.email,
@@ -84,21 +81,13 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
           ...data.user,
         };
 
-        console.log("✅ Processed user data:", userData);
-
-        // Login through AuthContext
         const loginSuccess = login(userData, data.token);
 
         if (loginSuccess) {
-          console.log("✅ Login successful, redirecting...");
-
-          // Close modal
           onClose();
 
-          // Reset form
           setLoginData({ email: "", password: "" });
 
-          // Redirect based on user role
           if (userData.role === "company") {
             navigate("/company-dashboard");
           } else if (userData.role === "freelancer") {
@@ -110,7 +99,6 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
           setError("Failed to process login. Please try again.");
         }
       } else {
-        console.log("❌ Login failed:", data);
         setError(
           data.error ||
             data.message ||
@@ -118,7 +106,6 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
         );
       }
     } catch (error) {
-      console.error("❌ Login error:", error);
       setError("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
@@ -138,7 +125,7 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="relative w-full max-w-md">
         <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-500/20 p-6">
-          {/* Header */}
+          {}
           <div className="flex items-center justify-between mb-6">
             <div className="text-center flex-1">
               <div className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-xl p-3 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
@@ -161,16 +148,16 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
             </button>
           </div>
 
-          {/* Form */}
+          {}
           <form onSubmit={handleLoginSubmit} className="space-y-4">
-            {/* Error Message */}
+            {}
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
 
-            {/* Email Field */}
+            {}
             <div>
               <label className="block text-sm font-medium text-emerald-400 mb-1">
                 Email Address
@@ -191,7 +178,7 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
               </div>
             </div>
 
-            {/* Password Field */}
+            {}
             <div>
               <label className="block text-sm font-medium text-emerald-400 mb-1">
                 Password
@@ -220,7 +207,7 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {}
             <button
               type="submit"
               disabled={loading}
@@ -236,7 +223,7 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
               )}
             </button>
 
-            {/* Additional Links */}
+            {}
             <div className="text-center">
               <p className="text-sm text-gray-400">
                 Don't have an account?{" "}
@@ -244,7 +231,6 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
                   type="button"
                   onClick={() => {
                     handleClose();
-                    // Stay on registration page
                   }}
                   className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
                   disabled={loading}
@@ -263,8 +249,9 @@ const LoginModal = ({ isOpen, onClose, userType }) => {
 const FreelancerRegistration = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth(); // ADD THIS LINE
+
   const [formData, setFormData] = useState({
-    // Step 1 - Account Setup
     fullName: "",
     email: "",
     password: "",
@@ -272,7 +259,6 @@ const FreelancerRegistration = () => {
     profilePictureFile: null,
     profilePicture: null,
 
-    // Step 2 - Personal Details
     phone: "",
     gender: "",
     dob: "",
@@ -280,7 +266,6 @@ const FreelancerRegistration = () => {
     hourlyRate: "",
     availability: "",
 
-    // Step 3 - Skills & Portfolio
     skills: [],
     experience: "",
     bio: "",
@@ -292,49 +277,37 @@ const FreelancerRegistration = () => {
   });
 
   const handleChange = (data) => {
-    console.log("🔄 Updating form data:", data);
     setFormData((prevData) => {
       const newData = { ...prevData, ...data };
-      console.log("📝 New form data:", newData);
+
       return newData;
     });
   };
 
-  // Navigation functions
   const nextStep = () => {
     const currentPath = location.pathname;
-    console.log("🔄 Current path:", currentPath);
 
     if (currentPath.includes("/step1")) {
-      console.log("📍 Navigating to step 2");
       navigate("/register/freelancer/step2");
     } else if (currentPath.includes("/step2")) {
-      console.log("📍 Navigating to step 3");
       navigate("/register/freelancer/step3");
     }
   };
 
   const prevStep = () => {
     const currentPath = location.pathname;
-    console.log("🔄 Current path:", currentPath);
 
     if (currentPath.includes("/step3")) {
-      console.log("📍 Navigating back to step 2");
       navigate("/register/freelancer/step2");
     } else if (currentPath.includes("/step2")) {
-      console.log("📍 Navigating back to step 1");
       navigate("/register/freelancer/step1");
     } else {
-      console.log("📍 Navigating back to registration selection");
       navigate("/register");
     }
   };
 
   const handleSubmit = async () => {
     try {
-      console.log("🔄 Submitting freelancer registration:", formData);
-
-      // Validation
       if (!formData.fullName || !formData.email || !formData.password) {
         alert("Please fill in all required fields");
         return;
@@ -365,7 +338,6 @@ const FreelancerRegistration = () => {
         return;
       }
 
-      // Registration data
       const registrationData = {
         fullName: formData.fullName,
         email: formData.email,
@@ -385,8 +357,6 @@ const FreelancerRegistration = () => {
         availability: formData.availability || "",
       };
 
-      console.log("📤 Sending registration data:", registrationData);
-
       const response = await fetch(
         "http://localhost:8000/api/freelancers/register",
         {
@@ -399,64 +369,83 @@ const FreelancerRegistration = () => {
       );
 
       const result = await response.json();
-      console.log("📥 Registration response:", result);
 
       if (response.ok && result.success) {
-        console.log("✅ Registration successful");
-
         const token = result.token;
 
-        try {
-          // Upload profile picture if provided
-          if (formData.profilePictureFile) {
-            console.log("📸 Uploading profile picture...");
-            const profileFormData = new FormData();
-            profileFormData.append(
-              "profilePicture",
-              formData.profilePictureFile
-            );
+        (async () => {
+          try {
+            if (formData.profilePictureFile) {
+              const profileFormData = new FormData();
+              profileFormData.append(
+                "profilePicture",
+                formData.profilePictureFile
+              );
 
-            await fetch(
-              "http://localhost:8000/api/freelancers/upload/profile-picture",
-              {
-                method: "PUT",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-                body: profileFormData,
-              }
+              await fetch(
+                "http://localhost:8000/api/freelancers/upload/profile-picture",
+                {
+                  method: "PUT",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: profileFormData,
+                }
+              );
+            }
+
+            if (formData.resumeFile) {
+              const resumeFormData = new FormData();
+              resumeFormData.append("resume", formData.resumeFile);
+
+              await fetch(
+                "http://localhost:8000/api/freelancers/upload/resume",
+                {
+                  method: "PUT",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: resumeFormData,
+                }
+              );
+            }
+          } catch (uploadError) {
+            console.warn(
+              "⚠️ File upload failed, but registration succeeded:",
+              uploadError
             );
           }
+        })();
 
-          // Upload resume if provided
-          if (formData.resumeFile) {
-            console.log("📄 Uploading resume...");
-            const resumeFormData = new FormData();
-            resumeFormData.append("resume", formData.resumeFile);
+        if (result.token && result.user) {
+          const userData = {
+            id: result.user.id || result.user._id,
+            email: result.user.email,
+            role: "freelancer",
+            fullName: result.user.fullName,
+            ...result.user,
+          };
 
-            await fetch("http://localhost:8000/api/freelancers/upload/resume", {
-              method: "PUT",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              body: resumeFormData,
-            });
+          const loginSuccess = login(userData, result.token);
+
+          if (loginSuccess) {
+            alert("Registration successful! Welcome to FreelanceHub!");
+
+            setTimeout(() => {
+              navigate("/");
+            }, 500);
+          } else {
+            alert("Registration successful! Please login to continue.");
+            navigate("/register");
           }
-        } catch (uploadError) {
-          console.warn(
-            "⚠️ File upload failed, but registration succeeded:",
-            uploadError
-          );
+        } else {
+          alert("Registration successful! Please login to continue.");
+          navigate("/register");
         }
-
-        alert("Registration successful! Redirecting to main page...");
-        navigate("/register"); // Go back to main registration page
       } else {
-        console.error("❌ Registration failed:", result);
         alert(`Error: ${result.message || "Registration failed"}`);
       }
     } catch (error) {
-      console.error("❌ Registration error:", error);
       alert("Network error. Please check your connection and try again.");
     }
   };
@@ -520,19 +509,16 @@ const CompanyRegistration = () => {
   );
 };
 
-// Main ParentRegistration component with integrated login
 const ParentRegistration = () => {
   const navigate = useNavigate();
   const [showLogin, setShowLogin] = useState(false);
   const [loginUserType, setLoginUserType] = useState("");
 
   const handleFreelancerClick = () => {
-    console.log("🔄 Redirecting to freelancer registration");
     navigate("/register/freelancer/step1");
   };
 
   const handleCompanyClick = () => {
-    console.log("🔄 Redirecting to company registration");
     navigate("/company-registration");
   };
 
@@ -553,14 +539,14 @@ const ParentRegistration = () => {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 overflow-hidden">
-      {/* Background Effects */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
-      {/* Moving shapes */}
+      {}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-emerald-400/5 to-teal-400/5 rounded-full animate-spin-slow"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-lime-400/5 to-emerald-400/5 rounded-full animate-spin-slow-reverse"></div>
@@ -569,7 +555,7 @@ const ParentRegistration = () => {
       <div className="relative z-10 flex items-center min-h-screen p-6">
         <div className="container mx-auto max-w-5xl">
           <div className="bg-slate-800/60 backdrop-blur-2xl rounded-3xl shadow-2xl border border-emerald-500/20 p-8 hover:shadow-emerald-500/20 transition-all duration-300">
-            {/* Header */}
+            {}
             <div className="text-center mb-12">
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-200 mb-4">
                 Join{" "}
@@ -582,27 +568,27 @@ const ParentRegistration = () => {
               </p>
             </div>
 
-            {/* Registration Options */}
+            {}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-              {/* Freelancer Section */}
+              {}
               <div className="group bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-8 hover:border-emerald-400/40 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500">
                 <div className="text-center">
-                  {/* Icon */}
+                  {}
                   <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-2xl">
                     <FaUserTie className="text-3xl" />
                   </div>
 
-                  {/* Title */}
+                  {}
                   <h2 className="text-2xl font-bold text-gray-200 mb-4 group-hover:text-emerald-400 transition-colors">
                     I'm a Freelancer
                   </h2>
 
-                  {/* Description */}
+                  {}
                   <p className="text-gray-400 mb-6 text-lg leading-relaxed">
                     Find projects that match your skills and build your career
                   </p>
 
-                  {/* Benefits */}
+                  {}
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="text-emerald-400 flex items-center text-sm">
                       <FaCheckCircle className="mr-3 text-emerald-400" />
@@ -622,7 +608,7 @@ const ParentRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Buttons */}
+                  {}
                   <div className="space-y-3">
                     <button
                       onClick={handleFreelancerClick}
@@ -641,25 +627,25 @@ const ParentRegistration = () => {
                 </div>
               </div>
 
-              {/* Company Section */}
+              {}
               <div className="group bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-8 hover:border-teal-400/40 hover:shadow-2xl hover:shadow-teal-500/20 transition-all duration-500">
                 <div className="text-center">
-                  {/* Icon */}
+                  {}
                   <div className="bg-gradient-to-r from-teal-500 to-lime-500 text-white rounded-2xl w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-2xl">
                     <FaBuilding className="text-3xl" />
                   </div>
 
-                  {/* Title */}
+                  {}
                   <h2 className="text-2xl font-bold text-gray-200 mb-4 group-hover:text-teal-400 transition-colors">
                     I'm a Company
                   </h2>
 
-                  {/* Description */}
+                  {}
                   <p className="text-gray-400 mb-6 text-lg leading-relaxed">
                     Hire skilled freelancers and grow your business efficiently
                   </p>
 
-                  {/* Benefits */}
+                  {}
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="text-teal-400 flex items-center text-sm">
                       <FaCheckCircle className="mr-3 text-teal-400" />
@@ -679,7 +665,7 @@ const ParentRegistration = () => {
                     </div>
                   </div>
 
-                  {/* Buttons */}
+                  {}
                   <div className="space-y-3">
                     <button
                       onClick={handleCompanyClick}
@@ -699,7 +685,7 @@ const ParentRegistration = () => {
               </div>
             </div>
 
-            {/* Stats Section */}
+            {}
             <div className="grid grid-cols-3 gap-6 mb-12">
               <div className="text-center bg-slate-800/60 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20 hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
                 <div className="text-3xl lg:text-4xl font-bold text-emerald-400 mb-2">
@@ -721,7 +707,7 @@ const ParentRegistration = () => {
               </div>
             </div>
 
-            {/* Footer */}
+            {}
             <div className="text-center">
               <div className="bg-slate-800/60 backdrop-blur-2xl rounded-2xl p-6 border border-emerald-500/20">
                 <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
@@ -746,14 +732,14 @@ const ParentRegistration = () => {
         </div>
       </div>
 
-      {/* Login Modal */}
+      {}
       <LoginModal
         isOpen={showLogin}
         onClose={closeLogin}
         userType={loginUserType}
       />
 
-      {/* Custom Animations */}
+      {}
       <style>
         {`
           @keyframes spin-slow {
@@ -792,6 +778,5 @@ const ParentRegistration = () => {
   );
 };
 
-// Export both named and default exports
 export { CompanyRegistration, FreelancerRegistration };
 export default ParentRegistration;

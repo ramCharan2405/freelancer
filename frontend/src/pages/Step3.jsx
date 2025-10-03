@@ -58,7 +58,6 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
   const handleResumeChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
       const allowedTypes = [
         "application/pdf",
         "application/msword",
@@ -70,7 +69,6 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
         return;
       }
 
-      // Validate file size (10MB max)
       if (file.size > 10 * 1024 * 1024) {
         alert("File size must be less than 10MB");
         return;
@@ -85,7 +83,7 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
   const removeResume = () => {
     setResumeFile(null);
     handleChange({ resumeFile: null });
-    // Reset file input
+
     const fileInput = document.getElementById("resume");
     if (fileInput) fileInput.value = "";
   };
@@ -136,7 +134,7 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 flex items-center justify-center p-4">
-      {/* Background Effects */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -144,7 +142,7 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
 
       <div className="relative z-10 w-full max-w-4xl">
         <div className="bg-slate-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-500/20 p-6">
-          {/* Compact Header */}
+          {}
           <div className="text-center mb-6">
             <div className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-xl p-3 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
               <FaCode className="text-white text-lg" />
@@ -160,12 +158,12 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
             </div>
           </div>
 
-          {/* Compact Form */}
+          {}
           <form className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Column */}
+              {}
               <div className="space-y-4">
-                {/* Skills */}
+                {}
                 <div>
                   <label className="block text-sm font-medium text-emerald-400 mb-2">
                     Skills *
@@ -208,7 +206,7 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
                   )}
                 </div>
 
-                {/* Experience */}
+                {}
                 <div>
                   <label className="block text-sm font-medium text-emerald-400 mb-1">
                     Experience (Years) *
@@ -230,7 +228,7 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
                   )}
                 </div>
 
-                {/* Social Links */}
+                {}
                 <div className="space-y-3">
                   <div>
                     <label className="block text-sm font-medium text-emerald-400 mb-1 flex items-center gap-2">
@@ -279,9 +277,9 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
                 </div>
               </div>
 
-              {/* Right Column */}
+              {}
               <div className="space-y-4">
-                {/* Bio */}
+                {}
                 <div>
                   <label className="block text-sm font-medium text-emerald-400 mb-1">
                     Professional Bio *
@@ -303,7 +301,7 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
                   )}
                 </div>
 
-                {/* Resume Upload */}
+                {}
                 <div>
                   <label className="block text-sm font-medium text-emerald-400 mb-2">
                     Resume/CV (Optional)
@@ -360,7 +358,7 @@ const Step3 = ({ formData, handleChange, prevStep, handleSubmit }) => {
               </div>
             </div>
 
-            {/* Navigation Buttons */}
+            {}
             <div className="flex justify-between pt-4 border-t border-emerald-500/20">
               <button
                 type="button"

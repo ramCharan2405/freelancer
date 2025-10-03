@@ -40,10 +40,10 @@ const applicationSchema = new mongoose.Schema(
     }
 );
 
-// Ensure one application per freelancer per job
+
 applicationSchema.index({ job: 1, freelancer: 1 }, { unique: true });
 
-// Add other useful indexes
+
 applicationSchema.index({ freelancer: 1, status: 1 });
 applicationSchema.index({ job: 1, status: 1 });
 applicationSchema.index({ createdAt: -1 });

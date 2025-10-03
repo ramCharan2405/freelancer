@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ApplicationDetailModal from "../components/ApplicationDetailModal";
+
 import {
   FaPlus,
   FaBriefcase,
@@ -37,7 +38,6 @@ const CompanyDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // State management
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({
@@ -55,7 +55,6 @@ const CompanyDashboard = () => {
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  // Redirect if not authenticated or not a company
   useEffect(() => {
     if (!isAuthenticated || user?.role !== "company") {
       navigate("/login");
@@ -63,7 +62,6 @@ const CompanyDashboard = () => {
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Fetch dashboard data
   useEffect(() => {
     if (isAuthenticated && user?.role === "company") {
       fetchDashboardData();
@@ -118,7 +116,6 @@ const CompanyDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      console.log("🔄 Fetching dashboard data...");
 
       const token = localStorage.getItem("token");
       if (!token) {
@@ -126,7 +123,6 @@ const CompanyDashboard = () => {
         return;
       }
 
-      // Fetch jobs with applications
       const jobsResponse = await fetch(
         "http://localhost:8000/api/jobs/company/my-jobs",
         {
@@ -139,24 +135,18 @@ const CompanyDashboard = () => {
 
       if (jobsResponse.ok) {
         const jobsData = await jobsResponse.json();
-        console.log("✅ Jobs API Response:", jobsData);
 
         const jobsList = jobsData.jobs || jobsData.data || jobsData || [];
         setJobs(Array.isArray(jobsList) ? jobsList : []);
 
-        // Calculate total applications from all jobs
         const allApplications = Array.isArray(jobsList)
           ? jobsList.flatMap((job) => job.applications || [])
           : [];
         setApplications(allApplications);
-
-        console.log("📊 Total applications found:", allApplications.length);
       } else {
-        console.error("❌ Jobs fetch failed:", jobsResponse.status);
         setJobs([]);
       }
     } catch (error) {
-      console.error("❌ Dashboard fetch error:", error);
       setError("Failed to load dashboard data");
       setJobs([]);
       setApplications([]);
@@ -165,7 +155,6 @@ const CompanyDashboard = () => {
     }
   };
 
-  // Calculate stats when data changes
   useEffect(() => {
     const totalJobs = jobs.length;
     const activeJobs = jobs.filter(
@@ -184,7 +173,6 @@ const CompanyDashboard = () => {
     });
   }, [jobs, applications]);
 
-  // Handle application status update
   const handleApplicationStatus = async (
     applicationId,
     status,
@@ -208,21 +196,18 @@ const CompanyDashboard = () => {
 
       if (updateResponse.ok) {
         const result = await updateResponse.json();
-        console.log("✅ Application status updated:", result);
 
-        // Refresh the dashboard data to get updated application statuses
         await fetchDashboardData();
 
         alert(`Application ${status} successfully!`);
 
-        // Close modal if open
         if (showDetailModal) {
           setShowDetailModal(false);
           setSelectedApplication(null);
         }
       } else {
         const errorData = await updateResponse.json();
-        console.error("❌ Failed to update application status:", errorData);
+
         alert(
           `Failed to update application status: ${
             errorData.message || "Unknown error"
@@ -230,7 +215,6 @@ const CompanyDashboard = () => {
         );
       }
     } catch (error) {
-      console.error("❌ Error updating application status:", error);
       alert("Error updating application status");
     } finally {
       setProcessingApplications((prev) => {
@@ -258,13 +242,10 @@ const CompanyDashboard = () => {
 
       if (response.ok) {
         setJobs(jobs.filter((job) => job._id !== jobId));
-        console.log("✅ Job deleted successfully");
       } else {
-        console.error("❌ Failed to delete job");
         alert("Failed to delete job");
       }
     } catch (error) {
-      console.error("❌ Delete job error:", error);
       alert("Error deleting job");
     }
   };
@@ -337,7 +318,7 @@ const CompanyDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 pt-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {}
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-lime-400 bg-clip-text text-transparent">
             Company Dashboard
@@ -348,14 +329,14 @@ const CompanyDashboard = () => {
           </p>
         </div>
 
-        {/* Error Message */}
+        {}
         {error && (
           <div className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
             <p className="text-red-400">{error}</p>
           </div>
         )}
 
-        {/* Stats Cards */}
+        {}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-2xl p-6">
             <div className="flex items-center justify-between">
@@ -406,7 +387,7 @@ const CompanyDashboard = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {}
         <div className="flex flex-wrap gap-4 mb-8">
           <button
             onClick={() => navigate("/post-job")}
@@ -425,7 +406,7 @@ const CompanyDashboard = () => {
           </button>
         </div>
 
-        {/* Jobs List with Applications */}
+        {}
         <div className="bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-2xl p-6">
           <h2 className="text-2xl font-bold text-white mb-6">
             Your Posted Jobs & Applications
@@ -449,7 +430,7 @@ const CompanyDashboard = () => {
                   key={job._id}
                   className="bg-slate-700/50 border border-gray-600/30 rounded-xl p-6 hover:border-emerald-500/40 transition-all duration-300"
                 >
-                  {/* Job Header */}
+                  {}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold text-white mb-2">
@@ -478,7 +459,7 @@ const CompanyDashboard = () => {
                         </div>
                       </div>
 
-                      {/* Skills */}
+                      {}
                       {job.skills && job.skills.length > 0 && (
                         <div className="mt-3">
                           <div className="flex flex-wrap gap-2">
@@ -527,7 +508,7 @@ const CompanyDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Job Status and Applications Summary */}
+                  {}
                   <div className="flex justify-between items-center pt-4 border-t border-gray-600/30">
                     <div className="flex items-center space-x-4">
                       <span
@@ -556,7 +537,7 @@ const CompanyDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Toggle Applications Button */}
+                    {}
                     {job.applications && job.applications.length > 0 ? (
                       <button
                         onClick={() => toggleJobExpansion(job._id)}
@@ -578,7 +559,7 @@ const CompanyDashboard = () => {
                     )}
                   </div>
 
-                  {/* Applications List - Enhanced View */}
+                  {}
                   {expandedJobs.has(job._id) &&
                     job.applications &&
                     job.applications.length > 0 && (
@@ -588,14 +569,14 @@ const CompanyDashboard = () => {
                           {job.applications.length} total)
                         </h4>
 
-                        {/* Applications Grid */}
+                        {}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           {job.applications.map((application) => (
                             <div
                               key={application._id}
                               className="bg-slate-600/30 rounded-lg p-5 border border-gray-600/20 hover:border-gray-500/40 transition-all duration-200"
                             >
-                              {/* Freelancer Quick Info */}
+                              {}
                               <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center space-x-3">
                                   <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
@@ -628,7 +609,7 @@ const CompanyDashboard = () => {
                                   </div>
                                 </div>
 
-                                {/* Status Badge */}
+                                {}
                                 <span
                                   className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
                                     application.status
@@ -639,7 +620,7 @@ const CompanyDashboard = () => {
                                 </span>
                               </div>
 
-                              {/* Key Details */}
+                              {}
                               <div className="space-y-2 mb-4">
                                 <div className="flex items-center text-sm text-gray-400">
                                   <FaEnvelope className="mr-2" />
@@ -666,7 +647,7 @@ const CompanyDashboard = () => {
                                 </div>
                               </div>
 
-                              {/* Skills Preview */}
+                              {}
                               {application.freelancer?.skills &&
                                 application.freelancer.skills.length > 0 && (
                                   <div className="mb-4">
@@ -694,7 +675,7 @@ const CompanyDashboard = () => {
                                   </div>
                                 )}
 
-                              {/* Cover Letter Preview */}
+                              {}
                               {application.coverLetter && (
                                 <div className="mb-4">
                                   <p className="text-gray-400 text-xs mb-1">
@@ -706,7 +687,7 @@ const CompanyDashboard = () => {
                                 </div>
                               )}
 
-                              {/* Action Buttons */}
+                              {}
                               <div className="flex items-center justify-between">
                                 <button
                                   onClick={() => openDetailModal(application)}
@@ -774,9 +755,11 @@ const CompanyDashboard = () => {
             </div>
           )}
         </div>
+
+        {}
       </div>
 
-      {/* Application Detail Modal */}
+      {}
       {showDetailModal && selectedApplication && (
         <ApplicationDetailModal
           application={selectedApplication}

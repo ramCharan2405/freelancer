@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-// Import routes
+
 const companyRoutes = require("./routes/companyRoute");
 const freelancerRoutes = require("./routes/freelancerRoute");
 
@@ -12,22 +12,22 @@ const freelancerRoutes = require("./routes/freelancerRoute");
 const app = express();
 
 
-app.use(express.json({ limit: "10mb" })); 
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],  
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     methods: "GET,POST,PUT,DELETE",
-    credentials: true, 
+    credentials: true,
   })
 );
 
 
 mongoose
-.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-.then(() => console.log(" MongoDB Connected"))
-.catch((err) => console.error(" MongoDB Connection Error:", err.message));
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log(" MongoDB Connected"))
+  .catch((err) => console.error(" MongoDB Connection Error:", err.message));
 
 
 

@@ -1,17 +1,19 @@
 const Application = require('../models/Application');
 const Job = require('../models/Job');
-const Freelancer = require('../models/Freelancer');
 const Company = require('../models/Company');
+const Freelancer = require('../models/Freelancer');
+const Chat = require('../models/Chat');
+const Message = require('../models/Message');
 
-// Apply for a job - FIXED
+
 const applyForJob = async (req, res) => {
   try {
-    console.log('🔄 Job application attempt:', req.body);
-    console.log('🔄 User info:', req.user);
 
-    const { jobId, coverLetter } = req.body;
 
-    // Validate input
+
+    const { jobId, coverLetter, proposedRate, estimatedDuration } = req.body;
+
+
     if (!jobId) {
       return res.status(400).json({
         success: false,
@@ -19,7 +21,7 @@ const applyForJob = async (req, res) => {
       });
     }
 
-    // Check if job exists and is active
+
     const job = await Job.findById(jobId);
     if (!job) {
       return res.status(404).json({
@@ -35,19 +37,19 @@ const applyForJob = async (req, res) => {
       });
     }
 
-    // FIXED: Find freelancer by user field, not by ID
+
     const freelancer = await Freelancer.findOne({ user: req.user.userId });
     if (!freelancer) {
-      console.log('❌ Freelancer profile not found for user:', req.user.userId);
+
       return res.status(400).json({
         success: false,
         message: 'Freelancer profile not found. Please complete your profile first.'
       });
     }
 
-    console.log('✅ Freelancer found:', freelancer._id);
 
-    // Check if user already applied - use freelancer._id for the application
+
+
     const existingApplication = await Application.findOne({
       job: jobId,
       freelancer: freelancer._id // Use freelancer._id, not req.user.userId
@@ -60,23 +62,25 @@ const applyForJob = async (req, res) => {
       });
     }
 
-    // Create new application - use freelancer._id
+
     const application = new Application({
       job: jobId,
       freelancer: freelancer._id, // Use freelancer._id, not req.user.userId
       coverLetter: coverLetter || '',
+      proposedRate,
+      estimatedDuration,
       status: 'pending',
       appliedAt: new Date()
     });
 
     const savedApplication = await application.save();
 
-    // Update job applications count
+
     await Job.findByIdAndUpdate(jobId, {
       $inc: { applicationsCount: 1 }
     });
 
-    // Populate the saved application for response
+
     const populatedApplication = await Application.findById(savedApplication._id)
       .populate('job', 'title description salary location company createdAt')
       .populate({
@@ -88,7 +92,7 @@ const applyForJob = async (req, res) => {
       })
       .populate('freelancer', 'fullName email skills experience');
 
-    console.log('✅ Application submitted successfully:', savedApplication._id);
+
 
     res.status(201).json({
       success: true,
@@ -97,7 +101,7 @@ const applyForJob = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error applying for job:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error applying for job',
@@ -106,16 +110,16 @@ const applyForJob = async (req, res) => {
   }
 };
 
-// Get applications by freelancer - FIXED
+
 const getFreelancerApplications = async (req, res) => {
   try {
-    console.log('🔄 Fetching applications for freelancer user:', req.user.userId);
 
-    // FIXED: First find the freelancer document using the user ID
+
+
     const freelancer = await Freelancer.findOne({ user: req.user.userId });
 
     if (!freelancer) {
-      console.log('❌ Freelancer profile not found for user:', req.user.userId);
+
       return res.status(404).json({
         success: false,
         message: 'Freelancer profile not found. Please complete your profile first.',
@@ -123,9 +127,9 @@ const getFreelancerApplications = async (req, res) => {
       });
     }
 
-    console.log('✅ Freelancer found:', freelancer._id);
 
-    // Now find applications using the freelancer's _id, not the user ID
+
+
     const applications = await Application.find({
       freelancer: freelancer._id // Use freelancer._id instead of req.user.userId
     })
@@ -139,8 +143,8 @@ const getFreelancerApplications = async (req, res) => {
       })
       .sort({ createdAt: -1 });
 
-    console.log('✅ Freelancer applications fetched:', applications.length);
-    console.log('📋 Applications found:', applications.map(app => ({
+
+    console.log('Applications found:', applications.map(app => ({
       id: app._id,
       jobTitle: app.job?.title,
       companyName: app.job?.company?.companyName || app.job?.company?.organization,
@@ -155,7 +159,7 @@ const getFreelancerApplications = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching freelancer applications:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error fetching applications',
@@ -165,16 +169,16 @@ const getFreelancerApplications = async (req, res) => {
   }
 };
 
-// Get applications by company - FIXED
+
 const getCompanyApplications = async (req, res) => {
   try {
-    console.log('🔄 Fetching applications for company user:', req.user.userId);
 
-    // FIXED: Find company by user field, not by ID
+
+
     const company = await Company.findOne({ user: req.user.userId });
 
     if (!company) {
-      console.log('❌ Company profile not found for user:', req.user.userId);
+
       return res.status(404).json({
         success: false,
         message: 'Company profile not found. Please complete your profile first.',
@@ -182,15 +186,15 @@ const getCompanyApplications = async (req, res) => {
       });
     }
 
-    console.log('✅ Company found:', company._id);
 
-    // Find jobs posted by this company
+
+
     const companyJobs = await Job.find({ company: company._id });
     const jobIds = companyJobs.map(job => job._id);
 
-    console.log('📋 Company jobs found:', jobIds.length);
 
-    // Find applications for these jobs
+
+
     const applications = await Application.find({
       job: { $in: jobIds }
     })
@@ -198,7 +202,7 @@ const getCompanyApplications = async (req, res) => {
       .populate('freelancer', 'fullName email skills experience profilePicture')
       .sort({ createdAt: -1 });
 
-    console.log('✅ Company applications fetched:', applications.length);
+
 
     res.json({
       success: true,
@@ -207,7 +211,7 @@ const getCompanyApplications = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching company applications:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error fetching applications',
@@ -217,13 +221,13 @@ const getCompanyApplications = async (req, res) => {
   }
 };
 
-// Get applications for a specific job - FIXED
+
 const getJobApplications = async (req, res) => {
   try {
     const { jobId } = req.params;
-    console.log('🔄 Fetching applications for job:', jobId);
 
-    // Verify job exists and user has permission
+
+
     const job = await Job.findById(jobId);
     if (!job) {
       return res.status(404).json({
@@ -232,7 +236,7 @@ const getJobApplications = async (req, res) => {
       });
     }
 
-    // FIXED: Check if user is the job owner (company)
+
     const company = await Company.findOne({ user: req.user.userId });
     if (!company || !job.company.equals(company._id)) {
       return res.status(403).json({
@@ -245,7 +249,7 @@ const getJobApplications = async (req, res) => {
       .populate('freelancer', 'fullName email skills experience profilePicture')
       .sort({ createdAt: -1 });
 
-    console.log('✅ Job applications fetched:', applications.length);
+
 
     res.json({
       success: true,
@@ -254,7 +258,7 @@ const getJobApplications = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching job applications:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error fetching applications',
@@ -263,27 +267,36 @@ const getJobApplications = async (req, res) => {
   }
 };
 
-// Update application status - FIXED
+
 const updateApplicationStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, response } = req.body;
 
-    console.log('🔄 Updating application status:', { id, status, response });
 
-    // Validate status
-    const validStatuses = ['pending', 'accepted', 'rejected', 'withdrawn'];
+
+
+    const validStatuses = ['pending', 'accepted', 'rejected'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid status value'
+        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
       });
     }
 
-    // Find application
+
+    const company = await Company.findOne({ user: req.user.userId });
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: 'Company not found'
+      });
+    }
+
+
     const application = await Application.findById(id)
-      .populate('job', 'company')
-      .populate('freelancer', 'user');
+      .populate('job')
+      .populate('freelancer');
 
     if (!application) {
       return res.status(404).json({
@@ -292,54 +305,125 @@ const updateApplicationStatus = async (req, res) => {
       });
     }
 
-    // FIXED: Check permissions
-    if (status === 'withdrawn') {
-      // Freelancer can withdraw their own application
-      if (!application.freelancer.user.equals(req.user.userId)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Not authorized to withdraw this application'
-        });
-      }
-    } else {
-      // Company can accept/reject applications
-      const company = await Company.findOne({ user: req.user.userId });
-      if (!company || !application.job.company.equals(company._id)) {
-        return res.status(403).json({
-          success: false,
-          message: 'Not authorized to update this application'
-        });
-      }
+
+    if (application.job.company.toString() !== company._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to update this application'
+      });
     }
 
-    // Update application
-    const updateData = {
-      status,
-      responseDate: new Date()
-    };
 
+    application.status = status;
+    application.responseDate = new Date();
     if (response) {
-      updateData.response = response;
+      application.response = response;
+    }
+    await application.save();
+
+
+    if (status === 'accepted') {
+      try {
+
+
+
+        let chat = await Chat.findOne({
+          jobId: application.job._id,
+          companyId: company._id,
+          freelancerId: application.freelancer._id,
+          applicationId: id
+        });
+
+        if (!chat) {
+
+          chat = new Chat({
+            jobId: application.job._id,
+            companyId: company._id,
+            freelancerId: application.freelancer._id,
+            applicationId: id,
+            participants: [
+              {
+                userId: company.user,
+                userType: 'company'
+              },
+              {
+                userId: application.freelancer.user,
+                userType: 'freelancer'
+              }
+            ],
+            isActive: true
+          });
+
+          await chat.save();
+
+
+          const welcomeMessage = new Message({
+            chatId: chat._id,
+            senderId: company.user,
+            senderType: 'system',
+            messageType: 'system',
+            content: `🎉 Congratulations! Your application for "${application.job.title}" has been accepted. You can now discuss project details here.`,
+            isRead: false
+          });
+
+          await welcomeMessage.save();
+
+
+          chat.lastMessage = {
+            content: welcomeMessage.content,
+            senderId: welcomeMessage.senderId,
+            timestamp: welcomeMessage.createdAt
+          };
+          await chat.save();
+
+
+
+
+          const populatedChat = await Chat.findById(chat._id)
+            .populate('jobId', 'title description')
+            .populate({
+              path: 'companyId',
+              populate: { path: 'user', select: 'fullName email' }
+            })
+            .populate({
+              path: 'freelancerId',
+              populate: { path: 'user', select: 'fullName email' }
+            });
+
+
+          const io = req.app.get('io');
+          if (io) {
+
+            io.to(application.freelancer.user.toString()).emit('chat:created', populatedChat);
+
+            io.to(company.user.toString()).emit('chat:created', populatedChat);
+
+
+          }
+        } else {
+
+        }
+      } catch (chatError) {
+
+
+      }
     }
 
-    const updatedApplication = await Application.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    )
+
+    const updatedApplication = await Application.findById(id)
       .populate('job', 'title description salary location company')
       .populate('freelancer', 'fullName email skills experience');
 
-    console.log('✅ Application status updated successfully');
+
 
     res.json({
       success: true,
-      message: 'Application status updated successfully',
+      message: `Application ${status} successfully${status === 'accepted' ? ' and chat created' : ''}`,
       application: updatedApplication
     });
 
   } catch (error) {
-    console.error('❌ Error updating application status:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error updating application status',
@@ -348,13 +432,12 @@ const updateApplicationStatus = async (req, res) => {
   }
 };
 
-// Withdraw application - FIXED
 const withdrawApplication = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('🔄 Withdrawing application:', id);
 
-    // Find application
+
+
     const application = await Application.findById(id)
       .populate('freelancer', 'user');
 
@@ -365,7 +448,7 @@ const withdrawApplication = async (req, res) => {
       });
     }
 
-    // FIXED: Check if user owns this application
+
     if (!application.freelancer.user.equals(req.user.userId)) {
       return res.status(403).json({
         success: false,
@@ -373,15 +456,15 @@ const withdrawApplication = async (req, res) => {
       });
     }
 
-    // Delete application
+
     await Application.findByIdAndDelete(id);
 
-    // Update job applications count
+
     await Job.findByIdAndUpdate(application.job, {
       $inc: { applicationsCount: -1 }
     });
 
-    console.log('✅ Application withdrawn successfully');
+
 
     res.json({
       success: true,
@@ -389,7 +472,7 @@ const withdrawApplication = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error withdrawing application:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error withdrawing application',
@@ -398,11 +481,10 @@ const withdrawApplication = async (req, res) => {
   }
 };
 
-// Get application by ID - FIXED
 const getApplicationById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('🔄 Fetching application by ID:', id);
+
 
     const application = await Application.findById(id)
       .populate('job', 'title description salary location company createdAt')
@@ -422,7 +504,7 @@ const getApplicationById = async (req, res) => {
       });
     }
 
-    // FIXED: Check permissions - freelancer can see their own, company can see applications to their jobs
+
     const isFreelancer = application.freelancer.user.equals(req.user.userId);
     let isCompanyOwner = false;
 
@@ -438,7 +520,7 @@ const getApplicationById = async (req, res) => {
       });
     }
 
-    console.log('✅ Application fetched successfully');
+
 
     res.json({
       success: true,
@@ -446,7 +528,7 @@ const getApplicationById = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error fetching application:', error);
+
     res.status(500).json({
       success: false,
       message: 'Server error fetching application',

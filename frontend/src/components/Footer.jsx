@@ -4,14 +4,14 @@ import { FaLinkedin, FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 const Footer = () => {
   return (
     <footer className="relative bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 overflow-hidden">
-      {/* Animated Background */}
+      {}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       <div className="relative z-10 bg-slate-800/40 backdrop-blur-2xl border-t border-emerald-500/20 px-8 py-12 shadow-2xl">
-        {/* Navigation Links */}
+        {}
         <div className="flex flex-wrap justify-center gap-8 text-base text-gray-400 mb-8 font-medium">
           <a
             href="#"
@@ -51,10 +51,10 @@ const Footer = () => {
           </a>
         </div>
 
-        {/* Divider */}
+        {}
         <hr className="border-emerald-500/20 my-8" />
 
-        {/* Logo & Tagline */}
+        {}
         <div className="flex flex-col md:flex-row items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <div className="bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl p-4 shadow-2xl border border-emerald-500/30">
@@ -66,7 +66,7 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Social Icons */}
+          {}
           <div className="flex space-x-4 mt-6 md:mt-0">
             <a
               href="#"
@@ -107,10 +107,10 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Divider */}
+        {}
         <hr className="border-emerald-500/20 my-8" />
 
-        {/* Copyright & Policies */}
+        {}
         <div className="text-center text-sm text-gray-500">
           <p className="mb-3">
             © 2010 - 2025 FreelanceHub. All rights reserved.

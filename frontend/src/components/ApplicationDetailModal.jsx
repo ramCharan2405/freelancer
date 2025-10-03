@@ -99,7 +99,6 @@ const ApplicationDetailModal = ({
       setDownloading(true);
       console.log("🔄 Downloading resume from:", freelancer.resume);
 
-      // Try to download directly from URL first
       const response = await fetch(freelancer.resume);
 
       if (!response.ok) {
@@ -109,11 +108,9 @@ const ApplicationDetailModal = ({
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
 
-      // Create download link
       const link = document.createElement("a");
       link.href = url;
 
-      // Use original filename if available, otherwise generate one
       const filename =
         freelancer.resumeOriginalName ||
         `${freelancer.fullName || "Resume"}_Resume.pdf`;
@@ -122,7 +119,6 @@ const ApplicationDetailModal = ({
       document.body.appendChild(link);
       link.click();
 
-      // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
@@ -130,7 +126,6 @@ const ApplicationDetailModal = ({
     } catch (error) {
       console.error("❌ Resume download failed:", error);
 
-      // Fallback: Open in new tab
       try {
         window.open(freelancer.resume, "_blank");
         console.log("✅ Resume opened in new tab as fallback");
@@ -143,7 +138,6 @@ const ApplicationDetailModal = ({
     }
   };
 
-  // Render star rating
   const renderRating = (rating) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -164,7 +158,7 @@ const ApplicationDetailModal = ({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-600/30">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between p-6 border-b border-gray-600/30">
           <h2 className="text-2xl font-bold text-white">Application Details</h2>
           <button
@@ -176,10 +170,10 @@ const ApplicationDetailModal = ({
         </div>
 
         <div className="p-6">
-          {/* Freelancer Profile Section */}
+          {}
           <div className="bg-slate-700/50 rounded-xl p-6 mb-6">
             <div className="flex items-start space-x-6">
-              {/* Profile Picture */}
+              {}
               <div className="flex-shrink-0">
                 <div className="w-24 h-24 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full flex items-center justify-center">
                   {freelancer.profilePicture ? (
@@ -194,7 +188,7 @@ const ApplicationDetailModal = ({
                 </div>
               </div>
 
-              {/* Basic Info */}
+              {}
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -206,7 +200,7 @@ const ApplicationDetailModal = ({
                       <span>{freelancer.experience || "Not specified"}</span>
                     </div>
 
-                    {/* Rating Section */}
+                    {}
                     {freelancer.rating !== undefined && (
                       <div className="flex items-center space-x-2 mt-2">
                         <div className="flex space-x-1">
@@ -225,7 +219,7 @@ const ApplicationDetailModal = ({
                     )}
                   </div>
 
-                  {/* Status Badge */}
+                  {}
                   <span
                     className={`px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(
                       application.status
@@ -236,9 +230,9 @@ const ApplicationDetailModal = ({
                   </span>
                 </div>
 
-                {/* Contact Information */}
+                {}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  {/* Phone */}
+                  {}
                   {freelancer.phone && (
                     <div className="flex items-center space-x-3 text-gray-300">
                       <FaPhone className="text-green-400" />
@@ -246,7 +240,7 @@ const ApplicationDetailModal = ({
                     </div>
                   )}
 
-                  {/* Location */}
+                  {}
                   {freelancer.location && (
                     <div className="flex items-center space-x-3 text-gray-300">
                       <FaMapMarkerAlt className="text-red-400" />
@@ -254,7 +248,7 @@ const ApplicationDetailModal = ({
                     </div>
                   )}
 
-                  {/* Portfolio */}
+                  {}
                   {freelancer.portfolio && (
                     <div className="flex items-center space-x-3">
                       <FaGlobe className="text-purple-400" />
@@ -274,7 +268,7 @@ const ApplicationDetailModal = ({
                     </div>
                   )}
 
-                  {/* GitHub */}
+                  {}
                   {freelancer.github && (
                     <div className="flex items-center space-x-3">
                       <FaGithub className="text-gray-400" />
@@ -294,7 +288,7 @@ const ApplicationDetailModal = ({
                     </div>
                   )}
 
-                  {/* LinkedIn */}
+                  {}
                   {freelancer.linkedin && (
                     <div className="flex items-center space-x-3">
                       <FaLinkedin className="text-blue-500" />
@@ -315,9 +309,9 @@ const ApplicationDetailModal = ({
                   )}
                 </div>
 
-                {/* Action Buttons */}
+                {}
                 <div className="flex flex-wrap gap-3">
-                  {/* Resume Download Button */}
+                  {}
                   {freelancer.resume && (
                     <button
                       onClick={handleDownloadResume}
@@ -335,7 +329,7 @@ const ApplicationDetailModal = ({
                     </button>
                   )}
 
-                  {/* Accept/Reject Buttons */}
+                  {}
                   {application.status === "pending" && (
                     <>
                       <button
@@ -370,7 +364,7 @@ const ApplicationDetailModal = ({
             </div>
           </div>
 
-          {/* Skills Section */}
+          {}
           {freelancer.skills && freelancer.skills.length > 0 && (
             <div className="bg-slate-700/30 rounded-xl p-6 mb-6">
               <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
@@ -390,7 +384,7 @@ const ApplicationDetailModal = ({
             </div>
           )}
 
-          {/* Bio Section */}
+          {}
           {freelancer.bio && (
             <div className="bg-slate-700/30 rounded-xl p-6 mb-6">
               <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
@@ -401,7 +395,7 @@ const ApplicationDetailModal = ({
             </div>
           )}
 
-          {/* Application Details */}
+          {}
           <div className="bg-slate-700/30 rounded-xl p-6 mb-6">
             <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
               <FaFileAlt className="mr-2 text-yellow-400" />
@@ -456,7 +450,7 @@ const ApplicationDetailModal = ({
             </div>
           </div>
 
-          {/* Response Input Section */}
+          {}
           {showResponseInput && application.status === "pending" && (
             <div className="bg-slate-700/30 rounded-xl p-6">
               <h4 className="text-lg font-semibold text-white mb-4">

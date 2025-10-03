@@ -31,7 +31,6 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 
-// Fixed Login Modal with proper centering
 const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
   const [loginData, setLoginData] = useState({
     email: "",
@@ -80,10 +79,8 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
       });
 
       const data = await response.json();
-      console.log("📥 Login response:", data);
 
       if (response.ok && data.success && data.token) {
-        // Extract user data from response
         const userData = {
           id: data.user?.id || data.user?._id,
           email: data.user?.email,
@@ -98,33 +95,40 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
           ...data.user,
         };
 
-        console.log("✅ Processed user data:", userData);
+        console.log("✅ Processed user data:", {
+          id: userData.id,
+          email: userData.email,
+          role: userData.role,
+          fullName: userData.fullName,
+        });
 
-        // Login through AuthContext
         const loginSuccess = login(userData, data.token);
 
         if (loginSuccess) {
-          console.log("✅ Login successful, redirecting...");
+          const verification = {
+            token: localStorage.getItem("token"),
+            userId: localStorage.getItem("userId"),
+            userRole: localStorage.getItem("userRole"),
+            user: localStorage.getItem("user"),
+          };
 
-          // Close modal
           onClose();
 
-          // Reset form
           setLoginData({ email: "", password: "" });
 
-          // Redirect based on user role
-          if (userData.role === "company") {
-            navigate("/company-dashboard");
-          } else if (userData.role === "freelancer") {
-            navigate("/jobs");
-          } else {
-            navigate("/");
-          }
+          setTimeout(() => {
+            if (userData.role === "company") {
+              navigate("/company-dashboard");
+            } else if (userData.role === "freelancer") {
+              navigate("/jobs");
+            } else {
+              navigate("/");
+            }
+          }, 100);
         } else {
           setError("Failed to process login. Please try again.");
         }
       } else {
-        console.log("❌ Login failed:", data);
         setError(
           data.error ||
             data.message ||
@@ -132,7 +136,6 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
         );
       }
     } catch (error) {
-      console.error("❌ Login error:", error);
       setError("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
@@ -149,12 +152,10 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
 
   const handleBack = () => {
     if (userType) {
-      // If user type is selected, go back to user type selection
       setUserType("");
       setError("");
       setLoginData({ email: "", password: "" });
     } else {
-      // If on user type selection, close modal completely
       handleClose();
     }
   };
@@ -173,7 +174,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
 
   return (
     <>
-      {/* Fixed backdrop with proper z-index and positioning */}
+      {}
       <div
         className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm"
         style={{
@@ -185,7 +186,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
           zIndex: 9999,
         }}
       >
-        {/* Centered modal container */}
+        {}
         <div
           className="min-h-screen flex items-center justify-center p-4"
           style={{
@@ -195,7 +196,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
             justifyContent: "center",
           }}
         >
-          {/* Modal content */}
+          {}
           <div
             className="relative w-full max-w-md"
             style={{
@@ -204,7 +205,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
             }}
           >
             <div className="bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-500/20 p-6 max-h-[85vh] overflow-y-auto">
-              {/* Header with Back Button */}
+              {}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
                   {userType && (
@@ -235,7 +236,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                 </button>
               </div>
 
-              {/* Title */}
+              {}
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                   {userType
@@ -254,7 +255,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                 )}
               </div>
 
-              {/* User Type Selection */}
+              {}
               {!userType && (
                 <div className="mb-6">
                   <div className="grid grid-cols-2 gap-4 mb-6">
@@ -284,7 +285,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                     </button>
                   </div>
 
-                  {/* Cancel Button for User Type Selection */}
+                  {}
                   {/* <div className="text-center">
                     <button
                       onClick={handleClose}
@@ -297,10 +298,10 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                 </div>
               )}
 
-              {/* Login Form - Only show when userType is selected */}
+              {}
               {userType && (
                 <form onSubmit={handleLoginSubmit} className="space-y-5">
-                  {/* User Type Switch */}
+                  {}
                   <div className="flex justify-center mb-6">
                     <div className="bg-slate-700/50 rounded-xl p-1 flex">
                       <button
@@ -332,14 +333,14 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                     </div>
                   </div>
 
-                  {/* Error Message */}
+                  {}
                   {error && (
                     <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">
                       {error}
                     </div>
                   )}
 
-                  {/* Email Field */}
+                  {}
                   <div>
                     <label className="block text-sm font-medium text-emerald-400 mb-2">
                       Email Address
@@ -360,7 +361,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                     </div>
                   </div>
 
-                  {/* Password Field */}
+                  {}
                   <div>
                     <label className="block text-sm font-medium text-emerald-400 mb-2">
                       Password
@@ -389,9 +390,9 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
+                  {}
                   <div className="space-y-3 pt-2">
-                    {/* Submit Button */}
+                    {}
                     <button
                       type="submit"
                       disabled={loading}
@@ -411,7 +412,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                       )}
                     </button>
 
-                    {/* Cancel Button */}
+                    {}
                     <button
                       type="button"
                       onClick={handleBack}
@@ -425,7 +426,7 @@ const LoginModal = ({ isOpen, onClose, userType, setUserType }) => {
                 </form>
               )}
 
-              {/* Additional Links */}
+              {}
               <div className="text-center mt-6 pt-4 border-t border-emerald-500/20">
                 <p className="text-sm text-gray-400">
                   Don't have an account?{" "}
@@ -458,7 +459,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Use auth context
   const { user, isAuthenticated, logout } = useAuth();
 
   const handleLoginClick = () => {
@@ -474,7 +474,7 @@ const Navbar = () => {
     logout();
     navigate("/");
     setShowProfileDropdown(false);
-    // Force page reload to update all components
+
     setTimeout(() => {
       window.location.reload();
     }, 100);
@@ -491,7 +491,6 @@ const Navbar = () => {
   const userRole = user?.role || "";
   const userName = user?.fullName || user?.companyName || user?.name || "User";
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showProfileDropdown && !event.target.closest(".profile-dropdown")) {
@@ -505,10 +504,8 @@ const Navbar = () => {
     };
   }, [showProfileDropdown]);
 
-  // Define navigation items based on user role - SIMPLIFIED
   const getNavItems = () => {
     if (!isLoggedIn) {
-      // Guest/Non-logged in users
       return [
         { name: "Home", path: "/", icon: FaHome },
         { name: "Browse Jobs", path: "/jobs", icon: FaBriefcase },
@@ -516,30 +513,33 @@ const Navbar = () => {
         { name: "How it Works", path: "/how-it-works", icon: FaProjectDiagram },
       ];
     } else if (userRole === "company") {
-      // Company users - EXACTLY AS REQUESTED
       return [
         { name: "Home", path: "/", icon: FaHome },
-        { name: "Post Job", path: "/post-job", icon: FaPlus },
         {
           name: "Dashboard",
           path: "/company-dashboard",
           icon: FaTachometerAlt,
         },
+        { name: "Post Job", path: "/post-job", icon: FaPlus },
+        { name: "Messages", path: "/messages", icon: FaEnvelope }, // ADD THIS
         { name: "Profile", path: "/edit-company-profile", icon: FaUser },
       ];
     } else if (userRole === "freelancer") {
-      // Freelancer users - EXACTLY AS REQUESTED
       return [
         { name: "Home", path: "/", icon: FaHome },
-        { name: "My Applications", path: "/my-applications", icon: FaFileAlt },
-        { name: "Browse Jobs", path: "/jobs", icon: FaSearch },
+        { name: "Find Jobs", path: "/jobs", icon: FaBriefcase },
+        {
+          name: "My Applications",
+          path: "/my-applications",
+          icon: FaClipboardList,
+        },
+        { name: "Messages", path: "/messages", icon: FaEnvelope }, // ADD THIS
         { name: "Profile", path: "/edit-freelancer-profile", icon: FaUser },
       ];
     }
     return [];
   };
 
-  // Define profile dropdown items based on user role
   const getProfileDropdownItems = () => {
     if (userRole === "company") {
       return [
@@ -672,7 +672,6 @@ const Navbar = () => {
   const navItems = getNavItems();
   const profileDropdownItems = getProfileDropdownItems();
 
-  // Get user display info
   const getUserDisplayInfo = () => {
     if (userRole === "company") {
       return {
@@ -701,11 +700,11 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Fixed Navbar */}
+      {}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-xl border-b border-emerald-500/20 shadow-2xl">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
+            {}
             <div
               className="flex items-center cursor-pointer group"
               onClick={() => navigate("/")}
@@ -733,7 +732,7 @@ const Navbar = () => {
               </span>
             </div>
 
-            {/* Desktop Navigation */}
+            {}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-6">
                 {navItems.map((item) => {
@@ -757,11 +756,11 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Desktop Auth Section */}
+            {}
             <div className="hidden md:flex items-center space-x-4">
               {isLoggedIn ? (
                 <div className="relative profile-dropdown">
-                  {/* User Profile Button */}
+                  {}
                   <button
                     onClick={() => setShowProfileDropdown(!showProfileDropdown)}
                     className="flex items-center space-x-3 bg-slate-800/60 backdrop-blur-2xl border border-emerald-500/20 rounded-2xl px-4 py-2 hover:border-emerald-400/40 transition-all duration-300 hover:scale-105 group"
@@ -800,7 +799,7 @@ const Navbar = () => {
                     />
                   </button>
 
-                  {/* Profile Dropdown */}
+                  {}
                   {showProfileDropdown && (
                     <div className="absolute right-0 mt-2 w-72 bg-slate-800/95 backdrop-blur-2xl border border-emerald-500/20 rounded-2xl shadow-2xl py-2 z-50">
                       <div className="px-4 py-3 border-b border-emerald-500/20">
@@ -815,7 +814,7 @@ const Navbar = () => {
                         </p>
                       </div>
 
-                      {/* Profile Actions */}
+                      {}
                       <div className="py-2">
                         {profileDropdownItems.map((item, index) => {
                           const IconComponent = item.icon;
@@ -862,7 +861,7 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile menu button */}
+            {}
             <div className="md:hidden">
               <button
                 onClick={toggleMenu}
@@ -873,7 +872,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Mobile Navigation Menu */}
+          {}
           {isOpen && (
             <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900/98 backdrop-blur-2xl border-b border-emerald-500/20 shadow-2xl">
               <div className="px-2 pt-2 pb-3 space-y-1">
@@ -899,7 +898,7 @@ const Navbar = () => {
                   );
                 })}
 
-                {/* Mobile Auth Section */}
+                {}
                 <div className="pt-4 border-t border-emerald-500/20">
                   {isLoggedIn ? (
                     <div className="space-y-2">
@@ -915,7 +914,7 @@ const Navbar = () => {
                         </p>
                       </div>
 
-                      {/* Mobile Profile Actions */}
+                      {}
                       {profileDropdownItems.map((item, index) => {
                         const IconComponent = item.icon;
                         return (
@@ -972,7 +971,7 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Login Modal */}
+        {}
         <LoginModal
           isOpen={showLogin}
           onClose={closeLogin}
@@ -980,7 +979,7 @@ const Navbar = () => {
           setUserType={setLoginUserType}
         />
 
-        {/* Click outside to close dropdown */}
+        {}
         {showProfileDropdown && (
           <div
             className="fixed inset-0 z-40"
@@ -989,7 +988,7 @@ const Navbar = () => {
         )}
       </nav>
 
-      {/* Spacer div to prevent content from being hidden behind fixed navbar */}
+      {}
       <div className="h-16"></div>
     </>
   );

@@ -60,7 +60,6 @@ const AddProject = () => {
         }
       );
       navigate("/projects");
-      
     } catch (err) {
       navigate("/projects");
       console.error("Failed to add project:", err);
@@ -204,7 +203,7 @@ const AddProject = () => {
           </div> */}
         </div>
 
-        {/* Optional: Company & Freelancer IDs */}
+        {}
         {/* 
         <div className="grid grid-cols-2 gap-4">
           <div>
