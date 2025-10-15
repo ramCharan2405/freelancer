@@ -13,6 +13,12 @@ router.put('/:id/status', verifyToken, applicationController.updateApplicationSt
 router.delete('/:id', verifyToken, applicationController.withdrawApplication);
 router.get('/:id', verifyToken, applicationController.getApplicationById);
 
+router.post('/:id/assignment/send', verifyToken, applicationController.sendAssignment);
+router.put('/:id/assignment/submit', verifyToken, applicationController.submitAssignment);
+router.put('/:id/assignment/review', verifyToken, applicationController.reviewAssignment);
+router.post('/:id/interview/schedule', verifyToken, applicationController.scheduleInterview);
+router.put('/:id/interview/complete', verifyToken, applicationController.completeInterview);
+
 
 
 module.exports = router;

@@ -456,6 +456,7 @@ const Navbar = () => {
   const [loginUserType, setLoginUserType] = useState("");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [pendingActions, setPendingActions] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -504,6 +505,34 @@ const Navbar = () => {
     };
   }, [showProfileDropdown]);
 
+  useEffect(() => {
+    if (userRole === "freelancer" && isAuthenticated) {
+      fetchPendingActions();
+    }
+  }, [userRole, isAuthenticated]);
+
+  const fetchPendingActions = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        "http://localhost:8000/api/applications/freelancer",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        const pending = data.applications.filter(
+          (a) =>
+            a.status === "assignment-sent" || a.status === "interview-scheduled"
+        ).length;
+        setPendingActions(pending);
+      }
+    } catch (error) {
+      console.error("Error fetching pending actions:", error);
+    }
+  };
+
   const getNavItems = () => {
     if (!isLoggedIn) {
       return [
@@ -521,19 +550,26 @@ const Navbar = () => {
           icon: FaTachometerAlt,
         },
         { name: "Post Job", path: "/post-job", icon: FaPlus },
-        { name: "Messages", path: "/messages", icon: FaEnvelope }, // ADD THIS
+        { name: "Messages", path: "/messages", icon: FaEnvelope },
         { name: "Profile", path: "/edit-company-profile", icon: FaUser },
       ];
     } else if (userRole === "freelancer") {
       return [
         { name: "Home", path: "/", icon: FaHome },
+        // ✅ DASHBOARD ADDED HERE
+        {
+          name: "Dashboard",
+          path: "/freelancer-dashboard",
+          icon: FaTachometerAlt,
+          badge: pendingActions > 0 ? pendingActions : null, // Add badge prop
+        },
         { name: "Find Jobs", path: "/jobs", icon: FaBriefcase },
         {
           name: "My Applications",
           path: "/my-applications",
           icon: FaClipboardList,
         },
-        { name: "Messages", path: "/messages", icon: FaEnvelope }, // ADD THIS
+        { name: "Messages", path: "/messages", icon: FaEnvelope },
         { name: "Profile", path: "/edit-freelancer-profile", icon: FaUser },
       ];
     }
@@ -600,6 +636,16 @@ const Navbar = () => {
       ];
     } else if (userRole === "freelancer") {
       return [
+        // ✅ DASHBOARD ADDED AS FIRST DROPDOWN ITEM
+        {
+          name: "My Dashboard",
+          path: "/freelancer-dashboard",
+          icon: FaTachometerAlt,
+          action: () => {
+            navigate("/freelancer-dashboard");
+            setShowProfileDropdown(false);
+          },
+        },
         {
           name: "My Profile",
           path: "/freelancer-profile",
@@ -750,6 +796,12 @@ const Navbar = () => {
                     >
                       <IconComponent className="text-sm" />
                       <span>{item.name}</span>
+                      {/* ✅ ADD BADGE */}
+                      {item.badge && (
+                        <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                          {item.badge}
+                        </span>
+                      )}
                     </button>
                   );
                 })}

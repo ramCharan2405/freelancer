@@ -12,6 +12,7 @@ import {
   FaHandshake,
   FaArrowRight,
   FaCheckCircle,
+  FaClipboardList
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import Login from "./login";
@@ -24,7 +25,7 @@ const Hero = () => {
 
   const isLoggedIn = isAuthenticated;
   const userRole = user?.role || "";
-  const userName = user?.fullName || user?.companyName || "";
+  const userName = user?.fullName || user?.companyName || user?.name || "";
 
   const handleLoginClick = (userType) => {
     setLoginUserType(userType);
@@ -103,6 +104,23 @@ const Hero = () => {
           { number: "98%", label: "Project Success", color: "text-lime-400" },
         ],
       };
+    } else {
+      // ✅ DEFAULT FALLBACK for unexpected roles (like 'user')
+      return {
+        title: `Welcome back, ${userName || "User"}!`,
+        subtitle:
+          "Complete your profile to get started. Choose your role as a freelancer or company to unlock all features.",
+        primaryCTA: {
+          text: "Complete Profile",
+          action: () => navigate("/register"),
+        },
+        secondaryCTA: { text: "Browse Jobs", action: () => navigate("/jobs") },
+        stats: [
+          { number: "1000+", label: "Active Jobs", color: "text-emerald-400" },
+          { number: "500+", label: "Freelancers", color: "text-teal-400" },
+          { number: "4.8★", label: "Average Rating", color: "text-lime-400" },
+        ],
+      };
     }
   };
 
@@ -136,11 +154,11 @@ const Hero = () => {
           actionText: "Browse Jobs",
         },
         {
-          title: "My Work",
-          description: "Track your applications & projects",
+          title: "My Dashboard", // ✅ CHANGE THIS
+          description: "Track applications & assignments", // ✅ CHANGE THIS
           icon: <FaBriefcase className="text-teal-400 text-2xl" />,
-          action: () => navigate("/my-applications"),
-          actionText: "View Applications",
+          action: () => navigate("/freelancer-dashboard"), // ✅ CHANGE THIS
+          actionText: "View Dashboard", // ✅ CHANGE THIS
         },
       ];
     } else if (userRole === "company") {
@@ -160,23 +178,50 @@ const Hero = () => {
           actionText: "Dashboard",
         },
       ];
+    } else {
+      // ✅ DEFAULT FALLBACK for unexpected roles
+      return [
+        {
+          title: "Browse Jobs",
+          description: "Explore available opportunities",
+          icon: <FaSearch className="text-emerald-400 text-2xl" />,
+          action: () => navigate("/jobs"),
+          actionText: "View Jobs",
+        },
+        {
+          title: "Complete Profile",
+          description: "Set up your account",
+          icon: <FaUserTie className="text-teal-400 text-2xl" />,
+          action: () => navigate("/register"),
+          actionText: "Get Started",
+        },
+      ];
     }
   };
 
   const quickActions = getQuickActions();
 
+  // ✅ Safety check before rendering
+  if (!heroContent) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {}
       <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-emerald-900/30 overflow-hidden">
-        {}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
 
-        {}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-emerald-400/5 to-teal-400/5 rounded-full animate-spin-slow"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-lime-400/5 to-emerald-400/5 rounded-full animate-spin-slow-reverse"></div>
@@ -185,9 +230,7 @@ const Hero = () => {
         <div className="relative z-10 flex items-center min-h-screen">
           <div className="container mx-auto px-6 py-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              {}
               <div className="space-y-8">
-                {}
                 {isLoggedIn && (
                   <div className="bg-slate-800/60 backdrop-blur-2xl rounded-3xl p-6 border border-emerald-500/20 shadow-2xl hover:scale-105 transition-all duration-300 hover:shadow-emerald-500/20">
                     <div className="flex items-center gap-4">
@@ -202,13 +245,13 @@ const Hero = () => {
                         <p className="text-gray-400 text-sm">
                           {userRole === "company"
                             ? "Company Account"
-                            : "Freelancer Account"}
+                            : userRole === "freelancer"
+                            ? "Freelancer Account"
+                            : "User Account"}
                         </p>
                         <p className="font-semibold text-gray-200 text-lg">
                           {userName ||
-                            (userRole === "company"
-                              ? "Company User"
-                              : "Freelancer")}
+                            (userRole === "company" ? "Company User" : "User")}
                         </p>
                       </div>
                     </div>
@@ -234,7 +277,6 @@ const Hero = () => {
                   </p>
                 </div>
 
-                {}
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={heroContent.primaryCTA.action}
@@ -251,7 +293,6 @@ const Hero = () => {
                   </button>
                 </div>
 
-                {}
                 <div className="grid grid-cols-3 gap-6 pt-8">
                   {heroContent.stats.map((stat, index) => (
                     <div
@@ -269,10 +310,8 @@ const Hero = () => {
                 </div>
               </div>
 
-              {}
               <div className="relative">
                 <div className="space-y-6">
-                  {}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {quickActions.map((action, index) => (
                       <div
@@ -299,7 +338,6 @@ const Hero = () => {
                     ))}
                   </div>
 
-                  {}
                   {isLoggedIn && (
                     <div className="bg-slate-800/60 backdrop-blur-2xl p-8 rounded-3xl shadow-2xl border border-emerald-500/20 hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
                       <div className="flex items-center gap-4 mb-4">
@@ -320,7 +358,6 @@ const Hero = () => {
                     </div>
                   )}
 
-                  {}
                   {!isLoggedIn && (
                     <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-2xl p-8 rounded-3xl text-gray-200 border border-emerald-500/20 hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
                       <h3 className="font-bold text-xl mb-4">
@@ -344,7 +381,6 @@ const Hero = () => {
                   )}
                 </div>
 
-                {}
                 <div className="absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-r from-emerald-400 to-lime-400 rounded-full shadow-2xl flex items-center justify-center animate-bounce">
                   <FaStar className="text-white text-2xl" />
                 </div>
@@ -358,119 +394,117 @@ const Hero = () => {
               </div>
             </div>
 
-            {}
-            {isLoggedIn && (
-              <div className="mt-20 bg-slate-800/60 backdrop-blur-2xl rounded-3xl p-8 border border-emerald-500/20 shadow-2xl">
-                <h3 className="font-bold text-2xl text-gray-200 mb-6 text-center">
-                  Quick Navigation
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  {userRole === "freelancer" ? (
-                    <>
-                      <Link
-                        to="/jobs"
-                        className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
-                          <FaBriefcase className="text-2xl text-emerald-400" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-200">
-                          Browse Jobs
-                        </span>
-                      </Link>
-                      <Link
-                        to="/my-applications"
-                        className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <div className="p-4 bg-gradient-to-r from-teal-500/20 to-lime-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
-                          <FaChartLine className="text-2xl text-teal-400" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-200">
-                          My Applications
-                        </span>
-                      </Link>
-                      <Link
-                        to="/projects"
-                        className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <div className="p-4 bg-gradient-to-r from-lime-500/20 to-emerald-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
-                          <FaHandshake className="text-2xl text-lime-400" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-200">
-                          Projects
-                        </span>
-                      </Link>
-                      <Link
-                        to="/edit-freelancer-profile"
-                        className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
-                          <FaUserTie className="text-2xl text-emerald-400" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-200">
-                          Profile
-                        </span>
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <Link
-                        to="/post-job"
-                        className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
-                          <FaPlus className="text-2xl text-emerald-400" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-200">
-                          Post Job
-                        </span>
-                      </Link>
-                      <Link
-                        to="/company-dashboard"
-                        className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <div className="p-4 bg-gradient-to-r from-teal-500/20 to-lime-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
-                          <FaChartLine className="text-2xl text-teal-400" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-200">
-                          Dashboard
-                        </span>
-                      </Link>
-                      <Link
-                        to="/jobs"
-                        className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <div className="p-4 bg-gradient-to-r from-lime-500/20 to-emerald-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
-                          <FaUsers className="text-2xl text-lime-400" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-200">
-                          Browse Talent
-                        </span>
-                      </Link>
-                      <Link
-                        to="/edit-company-profile"
-                        className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
-                      >
-                        <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
-                          <FaBuilding className="text-2xl text-emerald-400" />
-                        </div>
-                        <span className="text-sm font-semibold text-gray-200">
-                          Profile
-                        </span>
-                      </Link>
-                    </>
-                  )}
+            {isLoggedIn &&
+              (userRole === "freelancer" || userRole === "company") && (
+                <div className="mt-20 bg-slate-800/60 backdrop-blur-2xl rounded-3xl p-8 border border-emerald-500/20 shadow-2xl">
+                  <h3 className="font-bold text-2xl text-gray-200 mb-6 text-center">
+                    Quick Navigation
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    {userRole === "freelancer" ? (
+                      <>
+                        <Link
+                          to="/freelancer-dashboard"
+                          className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
+                            <FaChartLine className="text-2xl text-emerald-400" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-200">
+                            Dashboard
+                          </span>
+                        </Link>
+                        <Link
+                          to="/jobs"
+                          className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <div className="p-4 bg-gradient-to-r from-teal-500/20 to-lime-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
+                            <FaBriefcase className="text-2xl text-teal-400" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-200">
+                            Browse Jobs
+                          </span>
+                        </Link>
+                        <Link
+                          to="/my-applications"
+                          className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <div className="p-4 bg-gradient-to-r from-lime-500/20 to-emerald-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
+                            <FaClipboardList className="text-2xl text-lime-400" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-200">
+                            Applications
+                          </span>
+                        </Link>
+                        <Link
+                          to="/edit-freelancer-profile"
+                          className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
+                            <FaUserTie className="text-2xl text-emerald-400" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-200">
+                            Profile
+                          </span>
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/post-job"
+                          className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
+                            <FaPlus className="text-2xl text-emerald-400" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-200">
+                            Post Job
+                          </span>
+                        </Link>
+                        <Link
+                          to="/company-dashboard"
+                          className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <div className="p-4 bg-gradient-to-r from-teal-500/20 to-lime-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
+                            <FaChartLine className="text-2xl text-teal-400" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-200">
+                            Dashboard
+                          </span>
+                        </Link>
+                        <Link
+                          to="/jobs"
+                          className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <div className="p-4 bg-gradient-to-r from-lime-500/20 to-emerald-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
+                            <FaUsers className="text-2xl text-lime-400" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-200">
+                            Browse Talent
+                          </span>
+                        </Link>
+                        <Link
+                          to="/edit-company-profile"
+                          className="group flex flex-col items-center p-6 rounded-2xl hover:bg-emerald-500/10 transition-all duration-300 transform hover:scale-105"
+                        >
+                          <div className="p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl mb-3 group-hover:scale-110 transition-transform">
+                            <FaBuilding className="text-2xl text-emerald-400" />
+                          </div>
+                          <span className="text-sm font-semibold text-gray-200">
+                            Profile
+                          </span>
+                        </Link>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </div>
 
-      {}
       <Login isOpen={showLogin} onClose={closeLogin} userType={loginUserType} />
 
-      {}
       <style>
         {`
           @keyframes spin-slow {

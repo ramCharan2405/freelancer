@@ -45,6 +45,10 @@ router.put('/upload/profile-picture',
 
 router.get('/', freelancerController.getAllFreelancers);
 router.get('/:id', freelancerController.getFreelancerById);
+router.get('/resume/:id',
+  verifyToken,
+  freelancerController.getFreelancerResume
+);
 
 
 

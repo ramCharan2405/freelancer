@@ -6,6 +6,7 @@ const socketIo = require("socket.io");
 const mongoose = require("mongoose");
 const fs = require('fs');
 const path = require('path');
+const { startScheduler } = require('./utils/scheduler');
 
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -43,7 +44,11 @@ mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-  .then(() => console.log('✅ MongoDB Connected'))
+  .then(() => {
+    console.log('✅ MongoDB Connected');
+    // ✅ Start scheduler after DB connection
+    startScheduler();
+  })
   .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
 const freelancerRoutes = require('./routes/freelancerRoute');
@@ -53,6 +58,7 @@ const applicationRoutes = require('./routes/applicationRoute');
 const chatRoutes = require('./routes/chatRoute');
 const messageRoutes = require('./routes/messageRoute');
 const chatbotRoutes = require('./routes/chatbotRoute');
+const googleRoutes = require('./routes/googleRoute');
 
 app.use('/api/freelancers', freelancerRoutes);
 app.use('/api/companies', companyRoutes);
@@ -61,6 +67,7 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/google', googleRoutes);
 
 app.use((req, res, next) => {
   req.io = io;

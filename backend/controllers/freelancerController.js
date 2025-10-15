@@ -884,6 +884,41 @@ const getFreelancerById = async (req, res) => {
   }
 };
 
+// Add this new function
+const getFreelancerResume = async (req, res) => {
+  try {
+    const freelancer = await Freelancer.findById(req.params.id);
+
+    if (!freelancer) {
+      return res.status(404).json({
+        success: false,
+        message: 'Freelancer not found'
+      });
+    }
+
+    if (!freelancer.resume) {
+      return res.status(404).json({
+        success: false,
+        message: 'Resume not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      resumeUrl: freelancer.resume,
+      originalName: freelancer.resumeOriginalName || 'resume.pdf'
+    });
+
+  } catch (error) {
+    console.error('Error getting freelancer resume:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   registerFreelancer,
   loginFreelancer,
@@ -896,5 +931,6 @@ module.exports = {
   getResumeInfo,
   getAllFreelancers,
   getFreelancerById,
-  upload
+  upload,
+  getFreelancerResume
 };

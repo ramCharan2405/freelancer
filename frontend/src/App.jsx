@@ -12,9 +12,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./components/Navbar";
 import Featured from "./components/Featured";
+import TechTrends from "./components/TechTrends"; 
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
-import AIChatbot from "./components/AIChatbot"; // NEW
+import AIChatbot from "./components/AIChatbot";
 import LoginPage from "./pages/LoginPage";
 import ParentRegistration, {
   CompanyRegistration,
@@ -22,6 +23,7 @@ import ParentRegistration, {
 } from "./pages/ParentRegistration";
 import SimpleCompanyRegistration from "./pages/SimpleCompanyRegistration";
 import CompanyDashboard from "./pages/CompanyDashboard";
+import FreelancerDashboard from "./pages/FreelancerDashboard";
 import EditCompanyProfile from "./pages/EditCompanyProfile";
 import EditFreelancerProfile from "./pages/EditFreelancerProfile";
 import Jobs from "./pages/Jobs";
@@ -65,6 +67,7 @@ const AppContent = () => {
           element={
             <div>
               <Hero />
+              <TechTrends /> {/* ✅ ADD THIS - Shows before Featured */}
               <Featured />
             </div>
           }
@@ -80,7 +83,7 @@ const AppContent = () => {
           element={<SimpleCompanyRegistration />}
         />
         <Route path="/company-dashboard" element={<CompanyDashboard />} />
-        <Route path="/freelancer-dashboard" element={<Jobs />} />
+        <Route path="/freelancer-dashboard" element={<FreelancerDashboard />} />
         <Route path="/edit-company-profile" element={<EditCompanyProfile />} />
         <Route
           path="/edit-freelancer-profile"
@@ -96,6 +99,7 @@ const AppContent = () => {
           element={
             <div>
               <Hero />
+              <TechTrends /> {/* ✅ ADD THIS */}
               <Featured />
             </div>
           }
@@ -104,7 +108,6 @@ const AppContent = () => {
 
       {shouldShowFooter && <Footer />}
 
-      {}
       <AIChatbot />
     </div>
   );

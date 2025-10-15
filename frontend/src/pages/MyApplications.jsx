@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { FaChartLine } from "react-icons/fa";
 
 import {
   FaSpinner,
@@ -15,7 +16,10 @@ import {
   FaFileAlt,
   FaComments,
   FaEnvelope,
+  FaClipboardList,
+  FaBriefcase,
 } from "react-icons/fa";
+import JobDetailModal from "../components/JobDetailModal";
 
 const CoverLetterModal = ({ isOpen, onClose, coverLetter, jobTitle }) => {
   if (!isOpen) return null;
@@ -80,6 +84,9 @@ const MyApplications = () => {
   const [selectedJobTitle, setSelectedJobTitle] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [selectedJobId, setSelectedJobId] = useState(null);
+  const [showJobDetailModal, setShowJobDetailModal] = useState(false);
+
   useEffect(() => {
     if (!isAuthenticated || user?.role !== "freelancer") {
       navigate("/login");
@@ -142,6 +149,11 @@ const MyApplications = () => {
     setIsModalOpen(false);
     setSelectedCoverLetter(null);
     setSelectedJobTitle("");
+  };
+
+  const handleViewJob = (jobId) => {
+    setSelectedJobId(jobId);
+    setShowJobDetailModal(true);
   };
 
   const getStatusColor = (status) => {
@@ -231,6 +243,17 @@ const MyApplications = () => {
         )}
 
         {}
+        <div className="mb-6 flex justify-end">
+          <button
+            onClick={() => navigate("/freelancer-dashboard")}
+            className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-lime-400 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-emerald-500/40 hover:scale-105 flex items-center gap-2"
+          >
+            <FaChartLine />
+            View Full Dashboard
+          </button>
+        </div>
+
+        {}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-slate-800/60 backdrop-blur-2xl border border-blue-500/20 rounded-2xl p-6">
             <div className="flex items-center justify-between">
@@ -303,8 +326,66 @@ const MyApplications = () => {
               {applications.map((application) => (
                 <div
                   key={application._id}
-                  className="bg-slate-700/50 border border-gray-600/30 rounded-xl p-6 hover:border-emerald-500/40 transition-all duration-300"
+                  className={`bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border transition-all hover:scale-[1.01] ${
+                    application.status === "accepted"
+                      ? "border-emerald-500/40"
+                      : application.status === "assignment-sent"
+                      ? "border-orange-500/40 shadow-lg shadow-orange-500/20"
+                      : "border-emerald-500/20"
+                  }`}
                 >
+                  {/* Skill Match Progress Bar */}
+                  {application.skillMatchScore !== undefined && (
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-400">
+                          Skill Match
+                        </span>
+                        <span
+                          className={`text-sm font-bold ${
+                            application.skillMatchScore >= 75
+                              ? "text-green-400"
+                              : application.skillMatchScore >= 50
+                              ? "text-yellow-400"
+                              : "text-red-400"
+                          }`}
+                        >
+                          {application.skillMatchScore}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-900/60 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${
+                            application.skillMatchScore >= 75
+                              ? "bg-green-500"
+                              : application.skillMatchScore >= 50
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
+                          }`}
+                          style={{ width: `${application.skillMatchScore}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Assignment Alert */}
+                  {application.status === "assignment-sent" && (
+                    <div className="mb-4 p-3 bg-orange-500/20 border border-orange-500/40 rounded-xl flex items-center gap-3 animate-pulse">
+                      <FaClipboardList className="text-orange-400 text-xl" />
+                      <div>
+                        <p className="text-orange-400 font-semibold text-sm">
+                          Assignment Waiting!
+                        </p>
+                        <p className="text-xs text-gray-300">
+                          Complete before:{" "}
+                          {new Date(
+                            application.assignment.deadline
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       {}
@@ -419,13 +500,10 @@ const MyApplications = () => {
                     {}
                     <div className="ml-6">
                       <button
-                        onClick={() =>
-                          navigate(`/jobs/${application.job?._id}`)
-                        }
-                        className="flex items-center space-x-2 px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-colors"
+                        onClick={() => handleViewJob(application.job?._id)}
+                        className="w-full px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-colors flex items-center justify-center gap-2"
                       >
-                        <FaEye />
-                        <span>View Job</span>
+                        <FaBriefcase /> View Job
                       </button>
                     </div>
                   </div>
@@ -443,6 +521,17 @@ const MyApplications = () => {
         coverLetter={selectedCoverLetter}
         jobTitle={selectedJobTitle}
       />
+
+      {showJobDetailModal && (
+        <JobDetailModal
+          jobId={selectedJobId}
+          isOpen={showJobDetailModal}
+          onClose={() => {
+            setShowJobDetailModal(false);
+            setSelectedJobId(null);
+          }}
+        />
+      )}
 
       {}
       <style jsx>{`
